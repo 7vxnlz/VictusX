@@ -1,5 +1,7 @@
 # Fan Write Blocker Summary
 
+The [SetFanLevel endpoint/recovery audit](set-fan-level-endpoint-recovery-audit.md) supports2..99% -> raw1..54 as an offline default-V1 envelope only. Close8BD4 zero-handoff failures and the reference's multi-command reset/replay fallback prevent execution approval even inside that range. No exact value selected; F.31 recovery/ABI remain unvalidated, DeviceValidatedInputLength null, first-write and normal control NO-GO.
+
 Preferred SetFanLevel research input now uses the [percentage-mapping dry-run](set-fan-level-percentage-mapping-dry-run.md), default V1 ceiling55 with integer truncation and a special100 result, serialized as four bytes only. Legacy raw128/80-80 is deprecated research compatibility. No transport, UI, high-bit packing or fallback was added; F.31 validation, first-write readiness and normal control remain NO-GO, with DeviceValidatedInputLength null.
 
 The [closest-Victus deep trace](omencore-victus-16s-setfanlevel-deep-trace.md) confirms source-level V1 percentage scaling without a normal high-bit flag and four-byte omencore input; ghelper-omen's128-byte buffer is caller-selected, not infrastructure padding. Low-positive rounding, raw replay, multi-command recovery and fallback remain hazards. F.30 is not F.31 validation;80-80 remains uncertain, no first-write value is selected, and DeviceValidatedInputLength stays null. SetFanLevel first-write and normal fan control remain NO-GO.

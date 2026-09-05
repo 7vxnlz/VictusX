@@ -35,4 +35,6 @@ Both paths retain `NoHardwareInvocation=true`, `NoWmiInvocation=true`, `IsExecut
 
 ## Decision And Next Step
 
+The [endpoint/recovery audit](set-fan-level-endpoint-recovery-audit.md) narrows offline research to2..99% / raw1..54 with equal arguments; it does not change this inert parser's0..100 arithmetic coverage. Raw0, the100 endpoint, and all recovery assumptions remain excluded from any prospective write envelope. Exact-target recovery evidence is needed before first-write consideration.
+
 Mapping correctness does not prove accepted ABI, physical units, range, fan ordering or recovery on F.31. Request existing exact-target protocol/recovery evidence next, without probes or experiments. SetFanLevel first-write and normal/user-facing fan control remain **NO-GO**. Existing separately gated SetFanMax permissions are unchanged.

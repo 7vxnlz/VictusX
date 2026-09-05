@@ -2,6 +2,8 @@
 
 ## Decision And Scope
 
+The [endpoint/recovery audit](set-fan-level-endpoint-recovery-audit.md) defines only an offline envelope: equal arguments, integer2..99%, default55 -> raw1..54, four bytes. Zero/100 endpoints are excluded; recovery remains a multi-command, unvalidated handoff. No executable range or exact first-write value is approved; first-write remains NO-GO.
+
 The [percentage-mapping dry-run](set-fan-level-percentage-mapping-dry-run.md) adds close-device arithmetic evidence only. Its four-byte mapped examples, including zero and100 endpoints, are not executable candidates or approved restore values. Default55 is not a validated target ceiling; all first-write gates below remain unsatisfied.
 
 Documentation-only design. SetFanLevel is unvalidated, real writes remain unimplemented and unexecuted, and the first-write decision is **NO-GO**. This document adds no approval flag, transport, probe, or execution permission. The existing dry-run must remain permanently serialization-only; a future write proposal requires separate review and explicit authorization for implementation and execution.
