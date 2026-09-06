@@ -1,14 +1,14 @@
-# Third-Party Notices (Source-Level Draft)
+# Third-Party Notices
 
 ## Draft Status
 
-Status: **Source-level dependency evidence reviewed; release packaging pending**.
+Status: **Source-level dependency evidence and package-library license bundle assembled; final release review pending**.
 
-This is a source-level draft for a future VictusX HP Diagnostic preview. It is not a completed package notice file and does not authorize publishing. License identities for the current runtime dependency graph have been reviewed, but required license-text bundling and final package-content matching remain pending.
+This notice is prepared for a future VictusX HP Diagnostic preview. It does not authorize publishing. License identities for the current package dependency graph have been reviewed, and the applicable package-library texts are assembled under `Assets/Licenses` for external publication. The self-contained .NET runtime notice set, LGPL packaging method, icon attribution, and final artifact-content match remain pending.
 
 ## VictusX Project Notice
 
-Status: **Pending package review**.
+Status: **Present; pending final package review**.
 
 VictusX is a modified project based on G-Helper. The repository includes the GNU General Public License version 3 text in `LICENSE`. A future package must include the applicable project license text, the source location and revision used for the package, and this notice after review against the final package contents.
 
@@ -24,18 +24,22 @@ The reviewed upstream source reference recorded by this repository is commit `5c
 
 The following dependencies are recorded by `app/VictusX.csproj` and the local resolved dependency inventory. License evidence is recorded in the [Runtime Dependency License Review](docs/runtime-dependency-license-review.md). Inclusion in a future artifact is not yet known.
 
-| Package | Version | Relationship | License evidence | Release status |
+| Package | Version | Relationship | Requirement | Assembled material |
 | --- | --- | --- | --- | --- |
-| FftSharp | 2.2.0 | Direct | MIT | License notice bundling pending |
-| HidSharpCore | 1.3.0 | Direct | Apache-2.0 plus upstream NOTICE | Apache license and NOTICE bundling pending |
-| NAudio.Wasapi | 2.3.0 | Direct | MIT | License notice bundling pending |
-| NvAPIWrapper.Net | 0.8.1.101 | Direct | LGPL-3.0 | LGPL/GPL texts, prominent notice, attribution, and packaging-method review pending |
-| System.Management | 10.0.10 | Direct | MIT | License notice bundling pending |
-| TaskScheduler | 2.12.2 | Direct | MIT | License notice bundling pending |
-| WinForms.DataVisualization | 1.10.2 | Direct | MIT | License notice bundling pending |
-| NAudio.Core | 2.3.0 | Transitive | MIT | License notice bundling pending |
+| FftSharp | 2.2.0 | Direct | MIT attribution and license text | `FftSharp-LICENSE.txt` |
+| HidSharpCore | 1.3.0 | Direct | Apache-2.0 license and upstream NOTICE | `HidSharpCore-LICENSE.txt`, `HidSharpCore-NOTICE.txt` |
+| NAudio.Wasapi | 2.3.0 | Direct | MIT attribution and license text | `NAudio-LICENSE.txt` |
+| NvAPIWrapper.Net | 0.8.1.101 | Direct | Prominent attribution, LGPLv3 and incorporated GPLv3 texts; combined-work/relinking compliance | `NvAPIWrapper-README.txt`, `NvAPIWrapper-LGPL-3.0.txt`, `GPL-3.0.txt`; packaging-method review remains pending |
+| System.Management | 10.0.10 | Direct | MIT license and package third-party notices | `System.Management-LICENSE.txt`, `System.Management-THIRD-PARTY-NOTICES.txt` |
+| TaskScheduler | 2.12.2 | Direct | MIT attribution and license text | `TaskScheduler-LICENSE.txt` |
+| WinForms.DataVisualization | 1.10.2 | Direct | MIT attribution and license text | `WinForms.DataVisualization-LICENSE.txt` |
+| NAudio.Core | 2.3.0 | Transitive | MIT attribution and license text | Covered by `NAudio-LICENSE.txt` |
 
-The former Microsoft.Management.Infrastructure package family is not part of the current project or restored dependency graph after its duplicate readiness probe was removed. Final artifact inspection must confirm that no stale MMI files are distributed. Before distribution, assemble the required license and notice texts and compare this list with the final ZIP or installer contents. See [Dependency Notice Inventory](docs/dependency-notice-inventory.md) and [Package License Review Workflow](docs/package-license-review-workflow.md).
+No runtime package is treated as attribution-only: the applicable license terms are assembled for each one. HidSharpCore additionally requires its NOTICE. NvAPIWrapper additionally requires prominent identification and LGPL combined-work/relinking compliance; supplying license texts alone does not resolve that packaging obligation.
+
+`app/Assets/Licenses/LICENSE-SOURCES.md` records the authoritative source revision and SHA-256 for each assembled file. The project publishes this directory externally rather than hiding it inside the single-file executable.
+
+The former Microsoft.Management.Infrastructure package family is not part of the current project or restored dependency graph after its duplicate readiness probe was removed. Final artifact inspection must confirm that no stale MMI files are distributed. Before distribution, compare this list and the assembled files with the final ZIP or installer contents. A self-contained package also requires the exact .NET runtime license/notice set selected by the release candidate. See [Dependency Notice Inventory](docs/dependency-notice-inventory.md) and [Package License Review Workflow](docs/package-license-review-workflow.md).
 
 The [Runtime Dependency License Review Evidence Checklist](docs/runtime-dependency-license-review-evidence-checklist.md) now tracks the remaining release-candidate and artifact checks; the source-level findings are in the completed [Runtime Dependency License Review](docs/runtime-dependency-license-review.md).
 
@@ -75,4 +79,4 @@ HP, OMEN, and Victus names are used only to identify compatibility targets and r
 
 Status: **Blocked for release use**.
 
-This document is a draft, not completed release evidence. A preview package remains blocked until required dependency license/notice bundling, final artifact-content comparison, upstream attribution review, icon attribution, signing/checksum evidence, and clean-machine validation are complete. Normal/user-facing fan control also remains NO-GO.
+The package-library license and notice files are assembled, but this document is not completed release evidence. A preview package remains blocked until the self-contained runtime notice set and NvAPIWrapper packaging method are resolved, final artifact contents are matched, icon attribution is completed, and signing/checksum and clean-machine evidence exist. Normal/user-facing fan control also remains NO-GO.

@@ -18,10 +18,10 @@ This is a concise current snapshot for the VictusX HP Diagnostic preview. It doe
 | HP inherited-shell UI visual state | Done | Manual confirmation is recorded: compact inherited shell, readable footer labels/icons, aligned disabled captions, and read-only Diagnostic side panel. Preserve during release prep. | [HP inherited shell UI checkpoint](hp-inherited-shell-ui-final-checkpoint.md) |
 | Final `VictusX.ico` asset | Blocked | `app/Assets/VictusX.ico` is still missing. Final asset must be original or properly licensed, include provenance/attribution decision, and pass executable/window/tray/Explorer verification. | [Icon wiring checkpoint](victusx-icon-wiring-checkpoint.md), [Icon asset requirements](victusx-icon-asset-requirements.md) |
 | Icon/app identity wiring | Pending | Conditional build wiring exists and the HP publish profile now fails closed while the reviewed icon is absent. Final identity cannot be verified until that asset and a package candidate exist. | [Icon implementation plan](victusx-icon-app-identity-implementation-plan.md) |
-| Third-party/license notices status | Blocked | Runtime license identities are evidenced, but required MIT, Apache-2.0/NOTICE, and LGPL-3.0/GPL-3.0 materials are not assembled and final package matching is incomplete. | [Runtime dependency review](runtime-dependency-license-review.md), [Package notices plan](package-license-third-party-notices-completion-plan.md) |
+| Third-party/license notices status | Blocked | Package-library MIT, Apache-2.0/NOTICE, and LGPL-3.0/GPL-3.0 materials are assembled and publish-wired. The self-contained .NET runtime notice match and NvAPIWrapper LGPL single-file/relinking disposition remain open. | [Runtime dependency review](runtime-dependency-license-review.md), [Package notices](../THIRD-PARTY-NOTICES.md) |
 | Runtime dependency license review | Done | Source-level identity/version/license evidence is recorded for all seven direct packages and the one transitive package in the current restore graph. Artifact presence remains a separate final inspection step. | [Runtime dependency review](runtime-dependency-license-review.md) |
 | MMI runtime release disposition | Done | The sole MMI use was a duplicate read-only readiness probe. It and the direct package reference were removed; restored assets contain no MMI package. Final artifact inspection must confirm absence. | [Runtime dependency review](runtime-dependency-license-review.md) |
-| `THIRD-PARTY-NOTICES.md` release readiness | Blocked | The source-level draft records evidenced licenses, but required MIT, Apache-2.0/NOTICE, and LGPL-3.0/GPL-3.0 materials, icon attribution, and final artifact matching remain open. | [Third-Party Notices draft](../THIRD-PARTY-NOTICES.md) |
+| `THIRD-PARTY-NOTICES.md` release readiness | Blocked | Package-library texts and attribution are assembled. Runtime-pack notices, NvAPIWrapper packaging compliance, icon attribution, and final artifact matching remain open. | [Third-Party Notices](../THIRD-PARTY-NOTICES.md) |
 | `NU1900` disposition | Done for current source | Network-capable restore retrieved NuGet's vulnerability index/base/update data; both project graphs reported no vulnerable packages, and restore/build/test completed without `NU1900`. Repeat against the exact release candidate. | [NU1900 checkpoint](nu1900-warning-checkpoint.md) |
 | Signing/checksum evidence | Blocked | No final artifact exists, nothing is signed, and no final SHA-256 checksums exist. Evidence must identify artifact, version, commit, signing status, hash, reviewer/date, and validation linkage. | [Signing/checksum evidence plan](signing-checksum-evidence-plan.md) |
 | Clean-machine validation | Blocked | No final package has been validated on a clean Windows machine/VM. Requires artifact-specific launch, UI, no-control, Quit/process, path, crash, and reviewer/date evidence. | [Clean-machine evidence plan](clean-machine-validation-evidence-plan.md) |
@@ -35,8 +35,8 @@ This is a concise current snapshot for the VictusX HP Diagnostic preview. It doe
 ## Remaining Preview-Only Blockers
 
 - Reviewed final icon asset at `app/Assets/VictusX.ico`.
-- Required package license and third-party notice texts assembled for distribution.
-- `THIRD-PARTY-NOTICES.md` promoted from draft to reviewed release evidence.
+- Self-contained .NET runtime notices matched to the release candidate and NvAPIWrapper LGPL packaging/relinking disposition completed.
+- `THIRD-PARTY-NOTICES.md` promoted from source-assembled status to reviewed release evidence after icon and final artifact matching.
 - Final signing decision and SHA-256 checksum evidence.
 - Clean-machine validation against the exact package candidate.
 - Final package contents inspection.
