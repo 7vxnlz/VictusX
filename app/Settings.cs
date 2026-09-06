@@ -488,6 +488,11 @@ namespace GHelper
                 detected,
                 GetSnapshotOrReportValue(snapshot?.Model, hpCachedDiagnosticReport, "Model"),
                 GetSnapshotOrReportValue(snapshot?.SystemSku, hpCachedDiagnosticReport, "Sku"));
+            HpGpuModeStatus gpuMode = HpGpuModeStatus.Resolve(
+                detected,
+                GetSnapshotOrReportValue(snapshot?.Model, hpCachedDiagnosticReport, "Model"),
+                GetSnapshotOrReportValue(snapshot?.SystemSku, hpCachedDiagnosticReport, "Sku"),
+                GetHpGpuModeSwitchRaw(snapshot, hpCachedDiagnosticReport));
             HpReadOnlyTelemetryDisplay display = HpReadOnlyTelemetryFormatter.Format(
                 hpLiveTelemetry, DateTimeOffset.UtcNow, detected, cachedIdentity);
             labelCPUFan.Text = display.Cpu;
@@ -496,10 +501,23 @@ namespace GHelper
             labelBattery.Text = display.Battery;
             labelCharge.Text = display.BatteryCare;
             labelBacklight.Text = keyboard.DisplayText;
+            labelGPU.Text = gpuMode.DisplayText;
             labelSreen.Text = display.Display;
             panelScreen.AccessibleName = display.Display;
             if (hpLiveTelemetrySummary is not null)
-                hpLiveTelemetrySummary.Text = display.Summary + Environment.NewLine + keyboard.EvidenceText;
+                hpLiveTelemetrySummary.Text = display.Summary + Environment.NewLine + keyboard.EvidenceText +
+                    Environment.NewLine + gpuMode.EvidenceText;
+        }
+
+        private static byte? GetHpGpuModeSwitchRaw(
+            HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
+        {
+            if (snapshot?.SystemDesignDataInvocationSucceeded == true && snapshot.SystemDesignDataDecodeSucceeded)
+                return snapshot.SystemDesignDataDecoded?.GpuModeSwitchRaw;
+
+            return report?.GetBool("SystemDesignDataDecodeSucceeded") == true &&
+                byte.TryParse(report.GetValue("SystemDesignDataDecoded.GpuModeSwitchRaw"), out byte raw)
+                    ? raw : null;
         }
 
         private static int? ReadHpDisplayRefreshRate()

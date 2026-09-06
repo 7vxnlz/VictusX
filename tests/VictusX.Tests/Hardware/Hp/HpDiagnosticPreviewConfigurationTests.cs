@@ -305,6 +305,30 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         }
     }
 
+    [Fact]
+    public void HpGpuModeStatus_UsesDecodedCapabilityOnlyAndKeepsControlsDisabled()
+    {
+        string source = ReadRepositoryFile("app", "Hardware", "Hp", "HpGpuModeReadOnlyStatus.cs");
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+
+        Assert.Contains("SystemDesignDataDecoded.GpuModeSwitchRaw", settings, StringComparison.Ordinal);
+        Assert.Contains("labelGPU.Text = gpuMode.DisplayText;", settings, StringComparison.Ordinal);
+        Assert.Contains("panelGPU,", settings, StringComparison.Ordinal);
+        Assert.DoesNotContain("labelGPU.Enabled = true", settings, StringComparison.Ordinal);
+        Assert.DoesNotContain("buttonEco.Enabled = true", settings, StringComparison.Ordinal);
+        Assert.DoesNotContain("buttonStandard.Enabled = true", settings, StringComparison.Ordinal);
+        Assert.DoesNotContain("buttonUltimate.Enabled = true", settings, StringComparison.Ordinal);
+
+        foreach (string forbidden in new[]
+        {
+            "System.Management", "InvokeMethod", "hpqBIOSInt", "SetGpuMode", "Process.Start",
+            "Application.Restart", "HardwareControl", "AsusACPI"
+        })
+        {
+            Assert.DoesNotContain(forbidden, source, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     private static string ReadRepositoryFile(params string[] segments)
     {
         string repositoryRoot = FindRepositoryRoot();
