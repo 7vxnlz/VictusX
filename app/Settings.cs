@@ -481,8 +481,13 @@ namespace GHelper
 
         private void ApplyHpLiveTelemetry()
         {
-            bool cachedIdentity = Program.hpVictusCapabilitySnapshot is null;
-            bool? detected = Program.hpVictusCapabilitySnapshot?.IsHpVictus ?? hpCachedDiagnosticReport?.GetHpVictusDetected();
+            HpVictusCapabilitySnapshot? snapshot = Program.hpVictusCapabilitySnapshot;
+            bool cachedIdentity = snapshot is null;
+            bool? detected = snapshot?.IsHpVictus ?? hpCachedDiagnosticReport?.GetHpVictusDetected();
+            HpKeyboardBacklightStatus keyboard = HpKeyboardBacklightStatus.Resolve(
+                detected,
+                GetSnapshotOrReportValue(snapshot?.Model, hpCachedDiagnosticReport, "Model"),
+                GetSnapshotOrReportValue(snapshot?.SystemSku, hpCachedDiagnosticReport, "Sku"));
             HpReadOnlyTelemetryDisplay display = HpReadOnlyTelemetryFormatter.Format(
                 hpLiveTelemetry, DateTimeOffset.UtcNow, detected, cachedIdentity);
             labelCPUFan.Text = display.Cpu;
@@ -490,9 +495,11 @@ namespace GHelper
             labelTipGPU.Text = display.FanAndDevice;
             labelBattery.Text = display.Battery;
             labelCharge.Text = display.BatteryCare;
+            labelBacklight.Text = keyboard.DisplayText;
             labelSreen.Text = display.Display;
             panelScreen.AccessibleName = display.Display;
-            if (hpLiveTelemetrySummary is not null) hpLiveTelemetrySummary.Text = display.Summary;
+            if (hpLiveTelemetrySummary is not null)
+                hpLiveTelemetrySummary.Text = display.Summary + Environment.NewLine + keyboard.EvidenceText;
         }
 
         private static int? ReadHpDisplayRefreshRate()

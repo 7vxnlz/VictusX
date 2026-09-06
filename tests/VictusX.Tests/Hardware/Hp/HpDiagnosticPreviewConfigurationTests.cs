@@ -282,6 +282,29 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         }
     }
 
+    [Fact]
+    public void HpKeyboardBacklightStatus_UsesIdentityOnlyAndKeepsControlsDisabled()
+    {
+        string source = ReadRepositoryFile("app", "Hardware", "Hp", "HpKeyboardBacklightReadOnlyStatus.cs");
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+
+        Assert.Contains("7Z5Z2EA", source, StringComparison.Ordinal);
+        Assert.Contains("16-s0035", source, StringComparison.Ordinal);
+        Assert.Contains("Supported, state unavailable", source, StringComparison.Ordinal);
+        Assert.Contains("labelBacklight.Text = keyboard.DisplayText;", settings, StringComparison.Ordinal);
+        Assert.Contains("labelBacklight,", settings, StringComparison.Ordinal);
+        Assert.DoesNotContain("labelBacklight.Enabled = true", settings, StringComparison.Ordinal);
+
+        foreach (string forbidden in new[]
+        {
+            "System.Management", "InvokeMethod", "hpqBIOSInt", "SetBacklight", "SetBrightness",
+            "HardwareControl", "AsusACPI", "Aura.Apply"
+        })
+        {
+            Assert.DoesNotContain(forbidden, source, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     private static string ReadRepositoryFile(params string[] segments)
     {
         string repositoryRoot = FindRepositoryRoot();

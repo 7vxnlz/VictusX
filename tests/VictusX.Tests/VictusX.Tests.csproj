@@ -10,6 +10,7 @@
   <ItemGroup>
     <Compile Include="..\..\app\Hardware\Hp\HpGpuTemperaturePoller.cs" Link="Hardware\Hp\HpGpuTemperaturePoller.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpBatteryCareReadOnlyContracts.cs" Link="Hardware\Hp\HpBatteryCareReadOnlyContracts.cs" />
+    <Compile Include="..\..\app\Hardware\Hp\HpKeyboardBacklightReadOnlyStatus.cs" Link="Hardware\Hp\HpKeyboardBacklightReadOnlyStatus.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpFanLevelFirstWritePreflight.cs" Link="Hardware\Hp\HpFanLevelFirstWritePreflight.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpFanLevelResearchDryRunCommand.cs" Link="Hardware\Hp\HpFanLevelResearchDryRunCommand.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpFanLevelResearchDryRunLogWriter.cs" Link="Hardware\Hp\HpFanLevelResearchDryRunLogWriter.cs" />
