@@ -2,27 +2,27 @@
 
 ## Scope and Evidence
 
-This source-level inventory uses `app/VictusX.csproj`, `tests/VictusX.Tests/VictusX.Tests.csproj`, and the locally restored `project.assets.json` files under each project's ignored `obj` folder. It is not legal advice. The assets files provide resolved package identities, versions, hashes, and package paths; they do not provide reviewed license or notice conclusions.
+This source-level inventory uses `app/VictusX.csproj`, `tests/VictusX.Tests/VictusX.Tests.csproj`, and the locally restored `project.assets.json` files under each project's ignored `obj` folder. It is not legal advice. License findings are recorded separately in [Runtime Dependency License Review](runtime-dependency-license-review.md).
 
-No `packages.lock.json`, `.nuspec`, `NOTICE`, or checked-in third-party package notice inventory was found.
+No `packages.lock.json` exists. NuGet cache metadata and authoritative upstream license/notice sources were reviewed on 2026-09-06; final artifact contents remain unavailable.
 
 ## Application Dependencies
 
-These eight direct package references and three resolved transitives are candidates for the future application preview payload. Their license and notice status is unknown from the inspected project and assets metadata.
+These eight direct package references and three resolved transitives are candidates for the future application preview payload. Source-level license identities are reviewed; release packaging actions remain open.
 
 | Package | Version | Resolution status | Local license/notice evidence |
 | --- | --- | --- | --- |
-| FftSharp | 2.2.0 | Direct | Not recorded in project/assets metadata |
-| HidSharpCore | 1.3.0 | Direct | Not recorded in project/assets metadata |
-| Microsoft.Management.Infrastructure | 3.0.0 | Direct | Not recorded in project/assets metadata |
-| NAudio.Wasapi | 2.3.0 | Direct | Not recorded in project/assets metadata |
-| NvAPIWrapper.Net | 0.8.1.101 | Direct | Not recorded in project/assets metadata |
-| System.Management | 10.0.10 | Direct | Not recorded in project/assets metadata |
-| TaskScheduler | 2.12.2 | Direct | Not recorded in project/assets metadata |
-| WinForms.DataVisualization | 1.10.2 | Direct | Not recorded in project/assets metadata |
-| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | Transitive | Not recorded in project/assets metadata |
-| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Transitive | Not recorded in project/assets metadata |
-| NAudio.Core | 2.3.0 | Transitive | Not recorded in project/assets metadata |
+| FftSharp | 2.2.0 | Direct | MIT; reviewed |
+| HidSharpCore | 1.3.0 | Direct | Apache-2.0 plus upstream NOTICE; reviewed |
+| Microsoft.Management.Infrastructure | 3.0.0 | Direct | MIT; reviewed |
+| NAudio.Wasapi | 2.3.0 | Direct | MIT; reviewed |
+| NvAPIWrapper.Net | 0.8.1.101 | Direct | LGPL-3.0; reviewed, packaging compliance pending |
+| System.Management | 10.0.10 | Direct | MIT; reviewed |
+| TaskScheduler | 2.12.2 | Direct | MIT; reviewed |
+| WinForms.DataVisualization | 1.10.2 | Direct | MIT; reviewed |
+| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | Transitive | MIT; reviewed, artifact presence pending |
+| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Transitive | Custom Microsoft terms; reviewed, release blocker |
+| NAudio.Core | 2.3.0 | Transitive | MIT; reviewed |
 
 ## Test-Only Dependencies
 
@@ -58,8 +58,8 @@ The test-only list should be reviewed separately if any test or developer toolin
 
 ## Unknowns and Current Status
 
-This inventory does not establish any dependency's license, redistribution terms, bundled runtime contents, or notice obligations. It also does not replace final package inspection. Release remains blocked by this review work, the inherited icon, signing/checksums, and clean-machine packaged validation.
+The current graph's license identities and visible notice obligations are established in [Runtime Dependency License Review](runtime-dependency-license-review.md). Release remains blocked by the restrictive Microsoft.Management.Infrastructure.Runtime.Win disposition, required notice-file assembly, final package inspection, the inherited icon, signing/checksums, and clean-machine packaged validation.
 
 ## Recommended Next Safe Task
 
-Review each runtime entry in the source-level [Third-Party Notices Draft](../THIRD-PARTY-NOTICES.md) using [Runtime Dependency License Review Evidence Checklist](runtime-dependency-license-review-evidence-checklist.md), then record reviewer, date, required notice text, and final package-content confirmation. Do not publish until the review is complete.
+Resolve or remove Microsoft.Management.Infrastructure.Runtime.Win for distribution, then assemble the required dependency license/notice files and perform final package-content confirmation. Do not publish until those release checks are complete.

@@ -17,15 +17,15 @@ This is a repository-evidence checkpoint for a future HP diagnostic preview. It 
 | --- | --- | --- |
 | `LICENSE` | Present; GPLv3 text | Include the applicable license text and verify its presentation in the package. |
 | README credits | Present for G-Helper and research references | Add a concise package attribution that names G-Helper, the source location/commit, and that VictusX is modified. |
-| `THIRD-PARTY-NOTICES.md` | Draft now present; license conclusions remain pending | Review each runtime entry against authoritative metadata and final package contents before distribution. |
+| `THIRD-PARTY-NOTICES.md` | Draft records reviewed license identities; release packaging remains pending | Resolve the restrictive runtime terms, assemble required license/notices, and compare against final package contents before distribution. |
 | Package lock | Not found | Keep a clean-restore comparison step before packaging. |
 | Resolved dependency inventory | Locally restored assets were inspected | See [Dependency Notice Inventory](dependency-notice-inventory.md); repeat from a clean restore before packaging. |
-| Package license evidence | Not stored in the repository | Follow [Package License Review Workflow](package-license-review-workflow.md) and verify each package's license, notice, and redistribution requirements from authoritative package metadata. |
-| Runtime dependency review evidence | Checklist now present | Use [Runtime Dependency License Review Evidence Checklist](runtime-dependency-license-review-evidence-checklist.md) to record the required per-package evidence before marking notices reviewed. |
+| Package license evidence | Recorded for the current graph | See [Runtime Dependency License Review](runtime-dependency-license-review.md); required release files and artifact matching remain open. |
+| Runtime dependency review evidence | Source-level review complete | Microsoft.Management.Infrastructure.Runtime.Win 3.0.0 remains a release blocker under its package-supplied custom terms. |
 
 ## NuGet Considerations
 
-`app/VictusX.csproj` directly references FftSharp, HidSharpCore, NAudio.Wasapi, NvAPIWrapper.Net, Microsoft.Management.Infrastructure, System.Management, TaskScheduler, and WinForms.DataVisualization. [Dependency Notice Inventory](dependency-notice-inventory.md) records their locally resolved versions and discovered transitives. This audit does not infer their licenses or notice requirements. A future notice inventory must record authoritative license evidence, any required notice text, and whether transitive dependencies add obligations.
+`app/VictusX.csproj` directly references FftSharp, HidSharpCore, NAudio.Wasapi, NvAPIWrapper.Net, Microsoft.Management.Infrastructure, System.Management, TaskScheduler, and WinForms.DataVisualization. [Dependency Notice Inventory](dependency-notice-inventory.md) records their locally resolved versions and discovered transitives. [Runtime Dependency License Review](runtime-dependency-license-review.md) records the authoritative source-level license evidence and visible notice requirements.
 
 ## Future Preview Distribution Gate
 
@@ -44,8 +44,8 @@ Use [Runtime Dependency License Review Evidence Checklist](runtime-dependency-li
 
 ## Still Blocked or Unknown
 
-The precise third-party license and notice requirements, transitive dependency inventory, package-runtime contents, and final source-distribution presentation remain unverified. The inherited icon, signing/checksum plan, and clean-machine packaged smoke test are also still incomplete. Release remains blocked; this audit does not authorize a publish.
+The current dependency graph and license identities are reviewed. Required license/notice-file assembly, the Microsoft.Management.Infrastructure.Runtime.Win distribution disposition, package-runtime contents, and final source-distribution presentation remain unresolved. The inherited icon, signing/checksum plan, and clean-machine packaged smoke test are also incomplete. Release remains blocked; this audit does not authorize a publish.
 
 ## Recommended Next Safe Task
 
-Review the draft's runtime entries using [Runtime Dependency License Review Evidence Checklist](runtime-dependency-license-review-evidence-checklist.md), then compare the result against a final package file list. Keep the notices marked draft until that work is complete.
+Resolve or remove Microsoft.Management.Infrastructure.Runtime.Win for distribution, then assemble the required license/notice files and compare them against a final package file list. Keep the notices marked draft until that work is complete.

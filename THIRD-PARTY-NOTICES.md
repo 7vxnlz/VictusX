@@ -2,9 +2,9 @@
 
 ## Draft Status
 
-Status: **Pending review**.
+Status: **Source-level dependency evidence reviewed; release packaging pending**.
 
-This is a source-level draft for a future VictusX HP Diagnostic preview. It is not a completed package notice file, does not determine dependency license obligations, and does not authorize publishing. License and notice review for the final runtime package remains pending until authoritative dependency metadata and final package contents are reviewed.
+This is a source-level draft for a future VictusX HP Diagnostic preview. It is not a completed package notice file and does not authorize publishing. License identities for the current runtime dependency graph have been reviewed, but required license-text bundling, restrictive-license disposition, and final package-content matching remain pending.
 
 ## VictusX Project Notice
 
@@ -20,27 +20,27 @@ VictusX uses [G-Helper](https://github.com/seerge/g-helper) by seerge as its ori
 
 The reviewed upstream source reference recorded by this repository is commit `5c26f5ac970dab9e26347d80976ebf1eece91b1e`. This attribution must remain in future package notices, but it does not replace review of applicable upstream license and notice requirements before distribution.
 
-## Runtime Dependency Notice Review (Pending)
+## Runtime Dependency Notice Review
 
-The following dependencies are recorded by `app/VictusX.csproj` and the local resolved dependency inventory. They are potential runtime-package candidates. No license or notice conclusion is made here because authoritative package metadata and final artifact contents have not been reviewed.
+The following dependencies are recorded by `app/VictusX.csproj` and the local resolved dependency inventory. License evidence is recorded in the [Runtime Dependency License Review](docs/runtime-dependency-license-review.md). Inclusion in a future artifact is not yet known.
 
-| Package | Version | Status |
-| --- | --- | --- |
-| FftSharp | 2.2.0 | Direct runtime dependency; **Pending review** |
-| HidSharpCore | 1.3.0 | Direct runtime dependency; **Pending review** |
-| Microsoft.Management.Infrastructure | 3.0.0 | Direct runtime dependency; **Pending review** |
-| NAudio.Wasapi | 2.3.0 | Direct runtime dependency; **Pending review** |
-| NvAPIWrapper.Net | 0.8.1.101 | Direct runtime dependency; **Pending review** |
-| System.Management | 10.0.10 | Direct runtime dependency; **Pending review** |
-| TaskScheduler | 2.12.2 | Direct runtime dependency; **Pending review** |
-| WinForms.DataVisualization | 1.10.2 | Direct runtime dependency; **Pending review** |
-| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | Resolved transitive runtime candidate; **Pending review** |
-| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Resolved transitive runtime candidate; **Pending review** |
-| NAudio.Core | 2.3.0 | Resolved transitive runtime candidate; **Pending review** |
+| Package | Version | Relationship | License evidence | Release status |
+| --- | --- | --- | --- | --- |
+| FftSharp | 2.2.0 | Direct | MIT | License notice bundling pending |
+| HidSharpCore | 1.3.0 | Direct | Apache-2.0 plus upstream NOTICE | Apache license and NOTICE bundling pending |
+| Microsoft.Management.Infrastructure | 3.0.0 | Direct | MIT | License notice bundling pending; runtime package disposition below applies |
+| NAudio.Wasapi | 2.3.0 | Direct | MIT | License notice bundling pending |
+| NvAPIWrapper.Net | 0.8.1.101 | Direct | LGPL-3.0 | LGPL/GPL texts, prominent notice, attribution, and packaging-method review pending |
+| System.Management | 10.0.10 | Direct | MIT | License notice bundling pending |
+| TaskScheduler | 2.12.2 | Direct | MIT | License notice bundling pending |
+| WinForms.DataVisualization | 1.10.2 | Direct | MIT | License notice bundling pending |
+| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | Transitive | MIT | Artifact presence and license notice bundling pending |
+| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Transitive Windows runtime | Custom Microsoft Software License Terms | **Release blocker:** current terms restrict use to PowerShell and prohibit redistribution; exclude/replace or obtain clearance |
+| NAudio.Core | 2.3.0 | Transitive | MIT | License notice bundling pending |
 
-Before distribution, review each package from authoritative metadata, record the license evidence and required notice text, and compare the reviewed list with the final ZIP or installer contents. See [Dependency Notice Inventory](docs/dependency-notice-inventory.md) and [Package License Review Workflow](docs/package-license-review-workflow.md).
+Before distribution, assemble the required license and notice texts, resolve the Microsoft.Management.Infrastructure.Runtime.Win restriction, and compare this list with the final ZIP or installer contents. See [Dependency Notice Inventory](docs/dependency-notice-inventory.md) and [Package License Review Workflow](docs/package-license-review-workflow.md).
 
-See [Runtime Dependency License Review Evidence Checklist](docs/runtime-dependency-license-review-evidence-checklist.md) for the required evidence before this runtime dependency section can move from draft to reviewed.
+The [Runtime Dependency License Review Evidence Checklist](docs/runtime-dependency-license-review-evidence-checklist.md) now tracks the remaining release-candidate and artifact checks; the source-level findings are in the completed [Runtime Dependency License Review](docs/runtime-dependency-license-review.md).
 
 ## Test-Only Dependency Notice Review (Separate)
 
@@ -78,4 +78,4 @@ HP, OMEN, and Victus names are used only to identify compatibility targets and r
 
 Status: **Blocked for release use**.
 
-This document is a draft, not completed release evidence. A preview package remains blocked until authoritative runtime dependency license/notice review, final artifact-content comparison, upstream attribution review, icon attribution, signing/checksum evidence, and clean-machine validation are complete. Normal/user-facing fan control also remains NO-GO.
+This document is a draft, not completed release evidence. A preview package remains blocked until the restrictive Microsoft.Management.Infrastructure.Runtime.Win disposition, required dependency license/notice bundling, final artifact-content comparison, upstream attribution review, icon attribution, signing/checksum evidence, and clean-machine validation are complete. Normal/user-facing fan control also remains NO-GO.

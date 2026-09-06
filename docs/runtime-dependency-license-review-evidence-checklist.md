@@ -4,6 +4,8 @@
 
 This checklist defines the evidence required before runtime dependency license and notice review can be marked complete for a future VictusX HP Diagnostic preview. It is source-level planning only. It is not legal advice, does not modify license terms, and does not authorize publishing.
 
+Current status: source-level license identity evidence is complete for the current restore graph. See [Runtime Dependency License Review](runtime-dependency-license-review.md). Release clearance, notice assembly, and final artifact matching remain incomplete.
+
 ## Current Candidate List Source
 
 The current runtime dependency candidate list comes from:
@@ -18,22 +20,22 @@ No final preview ZIP or installer exists yet, so package-content matching cannot
 
 | Package | Version | Current status |
 | --- | --- | --- |
-| FftSharp | 2.2.0 | Pending review |
-| HidSharpCore | 1.3.0 | Pending review |
-| Microsoft.Management.Infrastructure | 3.0.0 | Pending review |
-| NAudio.Wasapi | 2.3.0 | Pending review |
-| NvAPIWrapper.Net | 0.8.1.101 | Pending review |
-| System.Management | 10.0.10 | Pending review |
-| TaskScheduler | 2.12.2 | Pending review |
-| WinForms.DataVisualization | 1.10.2 | Pending review |
+| FftSharp | 2.2.0 | License evidence reviewed; release notice pending |
+| HidSharpCore | 1.3.0 | Apache-2.0/NOTICE reviewed; release files pending |
+| Microsoft.Management.Infrastructure | 3.0.0 | MIT evidence reviewed; Windows runtime disposition pending |
+| NAudio.Wasapi | 2.3.0 | License evidence reviewed; release notice pending |
+| NvAPIWrapper.Net | 0.8.1.101 | LGPL-3.0 evidence reviewed; packaging compliance pending |
+| System.Management | 10.0.10 | License evidence reviewed; release notice pending |
+| TaskScheduler | 2.12.2 | License evidence reviewed; release notice pending |
+| WinForms.DataVisualization | 1.10.2 | License evidence reviewed; release notice pending |
 
 ## Resolved Transitive Runtime Package Candidates
 
 | Package | Version | Current status |
 | --- | --- | --- |
-| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | Pending review |
-| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Pending review |
-| NAudio.Core | 2.3.0 | Pending review |
+| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | License evidence reviewed; artifact presence pending |
+| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Custom terms reviewed; release blocked pending exclusion/replacement or clearance |
+| NAudio.Core | 2.3.0 | License evidence reviewed; release notice pending |
 
 ## Required Evidence Per Dependency
 
@@ -99,7 +101,7 @@ Package vulnerability audit data is also a separate signal. If restore/build/tes
 
 ## Remaining Blocked Items
 
-Runtime dependency review is still incomplete. Final package contents are unavailable, authoritative package licenses and notices are not reviewed, icon attribution depends on a future approved VictusX icon asset, signing/checksum evidence is incomplete, and clean-machine validation has not been run against a package candidate.
+Runtime dependency license identity review is complete for the current graph. Release remains blocked because the Microsoft.Management.Infrastructure.Runtime.Win terms are not cleared for VictusX distribution, required license/notice files are not assembled, and final package contents are unavailable. Icon attribution depends on a future approved VictusX icon asset, signing/checksum evidence is incomplete, and clean-machine validation has not been run against a package candidate.
 
 Recurring `NU1900` audit-source warnings also remain open until package vulnerability audit retrieval is verified or separately dispositioned.
 
@@ -107,4 +109,4 @@ Normal/user-facing fan control also remains NO-GO and must not be presented as p
 
 ## Recommended Next Safe Task
 
-Review each direct and transitive runtime dependency against authoritative package metadata and record the evidence in or alongside `THIRD-PARTY-NOTICES.md`; keep the preview release blocked until final artifact inspection also passes.
+Resolve or remove the Microsoft.Management.Infrastructure.Runtime.Win dependency for distribution, then assemble the required license/notice files and compare them with a future final artifact. Keep preview publishing blocked until those checks pass.
