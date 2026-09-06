@@ -329,6 +329,23 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         }
     }
 
+    [Fact]
+    public void HpTrayIdentity_UsesExecutableIconAndSkipsInheritedGpuIconSwaps()
+    {
+        string project = ReadRepositoryFile("app", "VictusX.csproj");
+        string program = ReadRepositoryFile("app", "Program.cs");
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+
+        Assert.Contains("<ApplicationIcon Condition=\"Exists('Assets\\VictusX.ico')\">Assets\\VictusX.ico</ApplicationIcon>", project, StringComparison.Ordinal);
+        Assert.Contains("<ApplicationIcon Condition=\"!Exists('Assets\\VictusX.ico')\">favicon.ico</ApplicationIcon>", project, StringComparison.Ordinal);
+        Assert.Contains("Icon = GetTrayIcon(),", program, StringComparison.Ordinal);
+        Assert.Contains("internal static Icon GetTrayIcon()", program, StringComparison.Ordinal);
+        Assert.Contains("Icon.ExtractAssociatedIcon(Application.ExecutablePath)", program, StringComparison.Ordinal);
+        Assert.Contains("if (!AppConfig.IsHpVictusHardwareMode()) return Properties.Resources.standard;", program, StringComparison.Ordinal);
+        Assert.Contains("if (AppConfig.IsHpVictusHardwareMode()) return;", settings, StringComparison.Ordinal);
+        Assert.Contains("Icon newIcon = GPUMode switch", settings, StringComparison.Ordinal);
+    }
+
     private static string ReadRepositoryFile(params string[] segments)
     {
         string repositoryRoot = FindRepositoryRoot();

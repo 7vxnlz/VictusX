@@ -12,6 +12,7 @@ Updated: 2026-09-06
 - SetFanLevel percentage dry-run and first-write preflight are hardware/WMI-inert. First-write readiness is NO-GO; no value is selected.
 - `DeviceValidatedInputLength` is null/unset. Normal/user-facing fan control is NO-GO.
 - Source-only release preparation is GO. Preview publishing is NO-GO pending icon, notices/license review, NU1900 disposition, signing/checksums, clean-machine validation, and final artifact inspection.
+- `app/Assets/VictusX.ico` is currently absent. Conditional executable and HP tray icon wiring is ready; the inherited icon remains the fallback until a reviewed asset is added.
 
 ## Verification Baseline
 

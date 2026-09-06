@@ -12,9 +12,9 @@ There is no `app/Properties/AssemblyInfo.cs`; executable metadata is currently p
 
 ## Current Icon And Resource State
 
-- `ApplicationIcon` points to `app/favicon.ico`, identified by packaging docs as the inherited G-Helper icon.
-- The initial tray icon is `Properties.Resources.standard`.
-- `Settings.VisualiseIcon` can later switch the tray icon among inherited `standard`, `eco`, `ultimate`, `light_standard`, `dark_standard`, `light_eco`, and `dark_eco` resources.
+- `ApplicationIcon` conditionally selects `app/Assets/VictusX.ico` when the reviewed asset is present and otherwise retains `app/favicon.ico` as the inherited fallback.
+- In HP mode, the initial tray icon is the executable associated icon; outside HP mode, it remains `Properties.Resources.standard`.
+- `Settings.VisualiseIcon` preserves inherited tray switching among `standard`, `eco`, `ultimate`, `light_standard`, `dark_standard`, `light_eco`, and `dark_eco` outside HP mode, but does not replace the HP-mode icon.
 - `app/Properties/Resources.resx` contains inherited icon resources from `app/Resources/*.ico`.
 - `app/UI/IconHelper.cs` sets the large form icon from the executable associated icon and the small form icon from supplied bitmap/icon resources.
 
@@ -35,8 +35,7 @@ Use the acceptance rules in [VictusX Icon Asset Requirements](victusx-icon-asset
 VictusX currently uses Windows Forms, not a WPF application shell. The relevant integration points are:
 
 - `app/VictusX.csproj` `ApplicationIcon`
-- `app/favicon.ico`
-- optional HP-specific icon resource in `app/Properties/Resources.resx`
+- `app/Assets/VictusX.ico` when supplied, with `app/favicon.ico` as the fallback
 - generated `app/Properties/Resources.Designer.cs`
 - `app/Program.cs` initial `NotifyIcon.Icon`
 - `app/Settings.cs` tray icon refresh logic in `VisualiseIcon`
@@ -47,9 +46,9 @@ If an HP-mode-only tray icon is added, keep the inherited default tray/icon beha
 
 ## Tray Icon Integration Considerations
 
-- Add a distinct HP Diagnostic/VictusX resource only after the asset passes the icon requirements checklist.
-- Select the VictusX tray icon only when `--hp-victus` is active.
-- Guard later inherited tray refresh paths so HP Diagnostic mode does not revert to `Properties.Resources.standard`.
+- Supply the reviewed `app/Assets/VictusX.ico` only after it passes the icon requirements checklist.
+- Select the executable-associated VictusX tray icon only when `--hp-victus` is active.
+- Keep later inherited tray refresh paths from replacing the HP-mode executable icon.
 - Preserve Diagnostic/Quit-only tray behavior in HP mode.
 - Do not add pulse, fan-control, updater, or ASUS control entries while changing icon behavior.
 
@@ -73,10 +72,8 @@ If an HP-mode-only tray icon is added, keep the inherited default tray/icon beha
 
 1. Approve the icon source, license/provenance record, attribution requirements, and size checklist.
 2. Add the reviewed `.ico` asset and source master in a narrowly named location.
-3. Update `ApplicationIcon` only to the reviewed VictusX icon when the executable icon replacement is approved.
-4. Add an HP Diagnostic-specific resource entry if tray selection needs a resource-backed icon.
-5. Add a small `--hp-victus` conditional for tray icon selection and HP-mode tray refresh preservation.
-6. Keep default ASUS/G-Helper icon resources and non-HP runtime behavior unchanged.
+3. Supply the reviewed `app/Assets/VictusX.ico`; the conditional executable and HP tray wiring will select it on rebuild.
+4. Keep default ASUS/G-Helper icon resources and non-HP runtime behavior unchanged.
 7. Update release blocker docs and notice docs if the icon introduces attribution requirements.
 8. Run build/tests and later packaged visual verification before any preview release.
 

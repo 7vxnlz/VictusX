@@ -552,7 +552,7 @@ namespace GHelper
             trayIcon = new NotifyIcon
             {
                 Text = "VictusX",
-                Icon = Properties.Resources.standard,
+                Icon = GetTrayIcon(),
                 Visible = true
             };
 
@@ -931,6 +931,20 @@ namespace GHelper
             if (AppConfig.IsHpVictusHardwareMode()) return;
 
             settingsForm.RefreshSensors();
+        }
+
+        internal static Icon GetTrayIcon()
+        {
+            if (!AppConfig.IsHpVictusHardwareMode()) return Properties.Resources.standard;
+
+            try
+            {
+                return Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? Properties.Resources.standard;
+            }
+            catch (Exception)
+            {
+                return Properties.Resources.standard;
+            }
         }
 
         private static void TrayRetryTimer_Tick(object? sender, EventArgs e)

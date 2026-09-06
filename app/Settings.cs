@@ -2870,6 +2870,7 @@ namespace GHelper
         public void VisualiseIcon(bool themeChange = false)
         {
             if (Program.trayIcon is null) return;
+            if (AppConfig.IsHpVictusHardwareMode()) return;
             if (themeChange) isDark = CheckSystemDarkModeStatus();
 
             int GPUMode = AppConfig.Get("gpu_mode");
