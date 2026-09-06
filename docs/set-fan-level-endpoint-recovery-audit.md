@@ -1,5 +1,7 @@
 # SetFanLevel Endpoint And Recovery Audit
 
+The [non-executable harness](set-fan-level-first-write-harness-scaffold.md) enforces the offline 2..99% / raw1..54 equal-pair envelope. It checks recovery-plan declarations only, not recovery effectiveness; this audit's execution NO-GO remains unchanged.
+
 Static review, 2026-09-06. A bounded **offline research envelope** can be defined: integer percentages 2..99, equal fan arguments, default V1 ceiling55, raw1..54 in `[raw, raw, 0, 0]`. This is a source-derived exclusion rule, not an adequate-cooling limit or permission to write. The executable first-write envelope remains empty; first-write and normal fan control remain **NO-GO**.
 
 ## Evidence Scope

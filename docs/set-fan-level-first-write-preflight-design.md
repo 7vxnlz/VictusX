@@ -2,6 +2,8 @@
 
 ## Decision And Scope
 
+The [non-executable harness](set-fan-level-first-write-harness-scaffold.md) now checks supplied offline declarations and serializes a plan. "Preflight satisfied" is not permission, recovery validation or first-write readiness; the full evidence requirements below remain unresolved.
+
 The [endpoint/recovery audit](set-fan-level-endpoint-recovery-audit.md) defines only an offline envelope: equal arguments, integer2..99%, default55 -> raw1..54, four bytes. Zero/100 endpoints are excluded; recovery remains a multi-command, unvalidated handoff. No executable range or exact first-write value is approved; first-write remains NO-GO.
 
 The [percentage-mapping dry-run](set-fan-level-percentage-mapping-dry-run.md) adds close-device arithmetic evidence only. Its four-byte mapped examples, including zero and100 endpoints, are not executable candidates or approved restore values. Default55 is not a validated target ceiling; all first-write gates below remain unsatisfied.

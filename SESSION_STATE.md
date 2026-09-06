@@ -4,6 +4,9 @@ Hard rule: keep this file short. It is a handoff note, not a diary.
 
 ## Current State
 
+- Added [non-executable SetFanLevel preflight harness](docs/set-fan-level-first-write-harness-scaffold.md): offline gate evaluation and JSON only; no CLI/UI/transport wiring. Satisfied declarations do not authorize writes. DeviceValidatedInputLength null; first-write and normal control NO-GO.
+- Harness verification: solution build passed (4 existing NU1900 warnings); full suite 332/332 passed. No fan CLI, hardware invocation, publication or commit.
+
 - Date: 2026-09-05
 - Latest safety note: HP Diagnostic report loading hardened for missing/corrupt reports.
 - Latest path note: HP Diagnostic paths and status messages standardized.
