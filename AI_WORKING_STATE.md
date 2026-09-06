@@ -14,8 +14,9 @@ Updated: 2026-09-06
 - Source-only release preparation is GO. Preview publishing is NO-GO pending icon, notices/license assembly, signing/checksums, clean-machine validation, and final artifact inspection.
 - The isolated `Microsoft.Management.Infrastructure`/`CimSession` readiness probe and package graph were removed. HP namespace/class/method readiness remains read-only through the existing `System.Management` WMI path; the `Runtime.Win` distribution blocker is resolved at source/restore-graph level pending final artifact confirmation.
 - `app/Assets/VictusX.ico` is currently absent. Conditional executable and HP tray icon wiring is ready; the inherited icon remains the fallback until a reviewed asset is added.
+- Localized `Strings*.resx` display values have been cleared of inherited G-Helper product wording. Compatibility resource keys and internal identifiers remain unchanged.
 - The HP preview profile is source-configured for Release `win-x64`, self-contained single-file, untrimmed and symbol-free output. It packages `LICENSE`, the notices file, and the safe `--hp-victus` launcher externally, and fails closed while the final icon is absent.
-- First preview publish source readiness remains NO-GO until the final icon exists, `THIRD-PARTY-NOTICES.md` is promoted from draft with required texts, and inherited localized G-Helper wording is dispositioned.
+- First preview publish source readiness remains NO-GO until the final icon exists and `THIRD-PARTY-NOTICES.md` is promoted from draft with required texts. The localized inherited-branding blocker is resolved.
 - `docs/preview-release-current-blockers.md` is the concise current snapshot for preview release blockers; deeper evidence remains in the packaging docs.
 
 ## Verification Baseline

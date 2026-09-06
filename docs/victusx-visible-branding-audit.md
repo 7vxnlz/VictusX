@@ -2,7 +2,9 @@
 
 ## Safe Display Changes
 
-The inherited-shell window title and tray caption now identify the running application as `VictusX`. The existing display-only resource values for “already running” and “open window” now say VictusX in the base English and Turkish resources. Resource keys such as `OpenGHelper` were retained, so existing callers and serialized/configured action mappings are unchanged.
+The inherited-shell window title and tray caption identify the running application as `VictusX`. All `Strings*.resx` display values now use `VictusX` where the inherited product name appeared, including already-running, open-window, ACPI-error, GPU-restart, and Optimus warning text. Only the product token changed; surrounding translations were preserved.
+
+Resource keys such as `OpenGHelper` were retained, so existing callers and serialized/configured action mappings are unchanged. A focused test scans resource `<value>` elements for inherited `GHelper`, `G-Helper`, or `G Helper` branding while confirming the compatibility key remains.
 
 ## Intentionally Preserved Compatibility References
 
@@ -14,8 +16,8 @@ The inherited-shell window title and tray caption now identify the running appli
 
 These references are implementation, migration, configuration, upstream-attribution, or updater compatibility concerns rather than safe standalone branding text changes.
 
-## Deferred Visible Text
+## Remaining Scope
 
-Localized strings in languages other than English and Turkish still contain inherited product wording. They require language-by-language translation review rather than mechanical replacement. Messages describing inherited ASUS/GPU behavior are also deferred because renaming the product alone could imply that unsupported behavior is available in VictusX.
+No inherited G-Helper product token remains in localized display values. The wording and availability of inherited ASUS/GPU actions are separate behavior and capability concerns; this branding cleanup does not enable them or change HP-mode safety restrictions.
 
 No namespace, identifier, hardware behavior, dependency, or fan-related code changed.

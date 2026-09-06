@@ -390,6 +390,37 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("Icon newIcon = GPUMode switch", settings, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void LocalizedDisplayValues_UseVictusXBrandingWhileCompatibilityKeysRemain()
+    {
+        string propertiesDirectory = Path.Combine(FindRepositoryRoot(), "app", "Properties");
+        string[] resourceFiles = Directory.GetFiles(propertiesDirectory, "Strings*.resx");
+
+        Assert.NotEmpty(resourceFiles);
+        foreach (string resourceFile in resourceFiles)
+        {
+            System.Xml.Linq.XDocument document = System.Xml.Linq.XDocument.Load(resourceFile);
+            foreach (System.Xml.Linq.XElement data in document.Descendants("data"))
+            {
+                string value = data.Element("value")?.Value ?? string.Empty;
+                bool containsInheritedBrand =
+                    value.Contains("GHelper", StringComparison.OrdinalIgnoreCase) ||
+                    value.Contains("G-Helper", StringComparison.OrdinalIgnoreCase) ||
+                    value.Contains("G Helper", StringComparison.OrdinalIgnoreCase);
+
+                Assert.False(
+                    containsInheritedBrand,
+                    $"Inherited branding remains in {Path.GetFileName(resourceFile)}:{data.Attribute("name")?.Value}.");
+            }
+        }
+
+        System.Xml.Linq.XDocument baseResource = System.Xml.Linq.XDocument.Load(
+            Path.Combine(propertiesDirectory, "Strings.resx"));
+        Assert.Contains(
+            baseResource.Descendants("data"),
+            data => string.Equals(data.Attribute("name")?.Value, "OpenGHelper", StringComparison.Ordinal));
+    }
+
     private static string ReadRepositoryFile(params string[] segments)
     {
         string repositoryRoot = FindRepositoryRoot();

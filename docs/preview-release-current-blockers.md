@@ -27,7 +27,7 @@ This is a concise current snapshot for the VictusX HP Diagnostic preview. It doe
 | Clean-machine validation | Blocked | No final package has been validated on a clean Windows machine/VM. Requires artifact-specific launch, UI, no-control, Quit/process, path, crash, and reviewer/date evidence. | [Clean-machine evidence plan](clean-machine-validation-evidence-plan.md) |
 | Final package contents inspection | Blocked | No artifact exists to inspect. Future inspection must verify executable identity, final icon, expected runtime files, notices/license, launcher arguments, absence of test/source/reference artifacts, absence of developer-only logs/device captures, and signing/checksum evidence. | [Package contents inspection](preview-package-contents-inspection.md), [Packaging readiness audit](windows-packaging-readiness-audit.md) |
 | HP publish profile source | Done | Profile is `Release`, `net10.0-windows`, `win-x64`, self-contained, single-file, untrimmed, native self-extracting, and symbol-free. It requires the final icon and packages the license, notices, and safe HP launcher as external files. | [Package contents inspection](preview-package-contents-inspection.md) |
-| Localized inherited branding review | Pending | English/Turkish display identity is VictusX, but other inherited localization resources still contain user-visible G-Helper wording. Review or constrain the preview language surface before release. | [Visible branding audit](victusx-visible-branding-audit.md) |
+| Localized inherited branding review | Done | All localized `Strings*.resx` display values use VictusX instead of inherited G-Helper wording. Resource keys and compatibility/internal identifiers remain unchanged, with a focused regression test covering display values. | [Visible branding audit](victusx-visible-branding-audit.md) |
 | Dedicated preview package artifact | Pending | Profile and launcher packaging are source-wired, but no release artifact should be created yet. Final artifact name/version and contents still need release-candidate evidence. | [Packaging readiness audit](windows-packaging-readiness-audit.md) |
 | HP telemetry usefulness gaps | Not required for preview | Remaining unavailable telemetry does not block source-only release prep if fail-closed wording remains clear. It may continue as safe read-only product work. | [HP UI usefulness gap audit](hp-victus-ui-usefulness-gap-audit.md) |
 | Normal fan-control enablement | Not required for preview | Normal fan control must remain blocked for preview. No sliders, toggles, curves, pulse/run buttons, background writes, EC/PawnIO fallback, or normal fan-control UI are required or allowed. | [Fan write blocker summary](fan-write-blocker-summary.md) |
@@ -37,7 +37,6 @@ This is a concise current snapshot for the VictusX HP Diagnostic preview. It doe
 - Reviewed final icon asset at `app/Assets/VictusX.ico`.
 - Required package license and third-party notice texts assembled for distribution.
 - `THIRD-PARTY-NOTICES.md` promoted from draft to reviewed release evidence.
-- Localized inherited G-Helper branding reviewed for the intended preview language surface.
 - Final signing decision and SHA-256 checksum evidence.
 - Clean-machine validation against the exact package candidate.
 - Final package contents inspection.
