@@ -13,20 +13,18 @@
   },
   "include": [
     "AGENTS.md",
-    "AI_CONTEXT.md",
-    "SESSION_STATE.md",
+    "AI_WORKING_STATE.md",
     "TOKEN_STRATEGY.md",
     "CONTEXT_RECIPES.md",
     "REFERENCE_POLICY.md",
+    "REFERENCE_SOURCES.md",
     "repomix.config.json",
     ".repomixignore",
-    ".github/copilot-instructions.md",
-    ".github/prompts/**/*.md",
-    "docs/**/*.md",
-    "src/**/*.cs",
-    "src/**/*.csproj",
-    "tests/**/*.cs",
-    "tests/**/*.csproj"
+    "app/**/AGENTS.md",
+    "tests/AGENTS.md",
+    "docs/context-packs/*.md",
+    "docs/reference-index.md",
+    "tools/context/*.ps1"
   ],
   "ignore": {
     "useGitignore": true,
