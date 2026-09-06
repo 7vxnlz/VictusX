@@ -85,6 +85,27 @@ public sealed class HpDiagnosticPreviewConfigurationTests
     }
 
     [Fact]
+    public void PublishProfile_KeepsNvApiWrapperAsAReplaceableExternalLibrary()
+    {
+        string profile = ReadRepositoryFile(
+            "app",
+            "Properties",
+            "PublishProfiles",
+            "VictusX-HP-Diagnostic-win-x64.pubxml");
+        string project = ReadRepositoryFile("app", "VictusX.csproj");
+        string temperatureSource = ReadRepositoryFile("app", "Hardware", "Hp", "HpNvidiaTemperatureSource.cs");
+
+        Assert.Contains("<PublishSingleFile>true</PublishSingleFile>", profile, StringComparison.Ordinal);
+        Assert.Contains("KeepNvApiWrapperReplaceable", profile, StringComparison.Ordinal);
+        Assert.Contains("NvAPIWrapper.dll", profile, StringComparison.Ordinal);
+        Assert.Contains("<ExcludeFromSingleFile>true</ExcludeFromSingleFile>", profile, StringComparison.Ordinal);
+        Assert.Contains("replaceable external library", profile, StringComparison.Ordinal);
+        Assert.Contains("<PackageReference Include=\"NvAPIWrapper.Net\" Version=\"0.8.1.101\"", project, StringComparison.Ordinal);
+        Assert.Contains("GPUApi.GetThermalSettings", temperatureSource, StringComparison.Ordinal);
+        Assert.Contains("ThermalSettingsTarget.GPU", temperatureSource, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SettingsUi_HasNoSetFanMaxExperimentRoute()
     {
         string settings = ReadRepositoryFile("app", "Settings.cs");

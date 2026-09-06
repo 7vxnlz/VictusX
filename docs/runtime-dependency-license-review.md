@@ -15,7 +15,7 @@ Evidence was taken from `app/VictusX.csproj`, `app/obj/project.assets.json`, pac
 | FftSharp 2.2.0 | Direct | `MIT` expression in the [2.2.0 NuGet package metadata](https://www.nuget.org/packages/FftSharp/2.2.0); repository commit `3f5158f7ab146c8fb651028e8dce67407b3ded81` | Preserve the MIT copyright and permission notice in distributions containing the library. | Reviewed |
 | HidSharpCore 1.3.0 | Direct | Package commit `bca4aee1c349985b0119eed24aba83e2dd63492d`; authoritative upstream [Apache-2.0 license](https://github.com/OpenTabletDriver/HIDSharpCore/blob/bca4aee1c349985b0119eed24aba83e2dd63492d/LICENSE) and [NOTICE](https://github.com/OpenTabletDriver/HIDSharpCore/blob/bca4aee1c349985b0119eed24aba83e2dd63492d/NOTICE.txt) | Bundle Apache-2.0 terms and retain the upstream HIDSharp NOTICE attribution. The package itself omits both files, so VictusX supplies them in `app/Assets/Licenses`. | Reviewed; files assembled |
 | NAudio.Wasapi 2.3.0 | Direct | `MIT` expression in the [2.3.0 NuGet package metadata](https://www.nuget.org/packages/NAudio.Wasapi/2.3.0); repository commit `c89fee940ee6f8d7374d18714a6b85d8b7a18ab0` | Preserve the MIT copyright and permission notice. | Reviewed |
-| NvAPIWrapper.Net 0.8.1.101 | Direct | Package `readme.txt`, package license URL, and tag `v0.8.1.101` [LGPL-3.0 license](https://github.com/falahati/NvAPIWrapper/blob/v0.8.1.101/LICENSE) | Prominently identify use of the library; bundle the LGPL-3.0 and incorporated GPL-3.0 texts; retain copyright/repository attribution; satisfy LGPL combined-work and relinking/replacement requirements. Self-contained single-file packaging has not been approved. | Reviewed; texts assembled, release disposition unresolved |
+| NvAPIWrapper.Net 0.8.1.101 | Direct | Package `readme.txt`, package license URL, and tag `v0.8.1.101` [LGPL-3.0 license](https://github.com/falahati/NvAPIWrapper/blob/v0.8.1.101/LICENSE) | Prominently identify use of the library; bundle the LGPL-3.0 and incorporated GPL-3.0 texts; retain copyright/repository attribution; distribute the library in replaceable external form. | Reviewed; texts assembled and external-library architecture selected |
 | System.Management 10.0.10 | Direct | `MIT` expression in the [10.0.10 NuGet package metadata](https://www.nuget.org/packages/System.Management/10.0.10); repository commit `f7d90799ce4ef09a0bb257852a57248d2a8fb8dd` | Preserve the MIT copyright and permission notice. | Reviewed |
 | TaskScheduler 2.12.2 | Direct | `MIT` expression in the [2.12.2 NuGet package metadata](https://www.nuget.org/packages/TaskScheduler/2.12.2); repository commit `8f4803cf060b35f8299db26b45bfd6ff0f599c3c` | Preserve the MIT copyright and permission notice. | Reviewed |
 | WinForms.DataVisualization 1.10.2 | Direct | `MIT` expression in the [1.10.2 NuGet package metadata](https://www.nuget.org/packages/WinForms.DataVisualization/1.10.2); repository commit `063510db7fa1e7fafbb19a6b1c79a8f25112a700` | Preserve the MIT copyright and permission notice. | Reviewed |
@@ -39,20 +39,25 @@ Current profile context: the HP preview publish profile is source-configured as 
 
 Current obligation evidence: NvAPIWrapper.Net 0.8.1.101 is licensed under LGPL-3.0, with the upstream package readme and license evidence assembled in `app/Assets/Licenses`. The recorded obligations for a distributed preview are prominent identification of the library, the LGPL-3.0 and incorporated GPL-3.0 texts, copyright/repository attribution, and a packaging approach that satisfies LGPL combined-work relinking or replacement expectations.
 
-Current disposition: **Still unresolved for the current self-contained single-file profile**. The assembled texts and attribution are necessary but are not enough to approve a single-file distribution. The remaining release decision is whether the preview will:
+Usage trace: `HpNvidiaTemperatureSource` uses physical-GPU enumeration plus `GPUApi.GetThermalSettings` for the read-only HP temperature value. The inherited non-HP `NvidiaGpuControl` also uses NvAPIWrapper for NVIDIA discovery, temperature, utilization, performance-state reads, and its existing non-HP GPU controls. Removing the package or replacing it with handwritten native interop would therefore either reduce telemetry correctness or broaden the change substantially.
 
-- change the publish profile so NvAPIWrapper is distributed in a replaceable external form, with clear license/notices and artifact inspection evidence;
-- keep single-file packaging only after a documented legal/release review concludes the artifact still satisfies LGPL relinking/replacement expectations; or
-- remove/replace the NvAPIWrapper-dependent GPU temperature path before distribution, with source, behavior, and notice review.
+Options reviewed:
 
-Until one of those decisions is made and verified against an actual release candidate, NvAPIWrapper.Net remains a preview publish blocker. This is not a product-code blocker for source-only work, and it does not change the existing read-only HP telemetry behavior.
+- embedding the assembly in the single file leaves replacement/relinking disposition unresolved;
+- replacing NvAPIWrapper with new native interop has high correctness and maintenance risk;
+- removing it would make HP GPU temperature unavailable and disrupt inherited non-HP NVIDIA behavior;
+- keeping the same package and API calls while publishing `NvAPIWrapper.dll` externally is the least disruptive architecture.
+
+Current disposition: **Resolved at source architecture level by external deployment**. The HP preview profile keeps the application and self-contained runtime single-file, but marks the resolved `NvAPIWrapper.dll` publish item `ExcludeFromSingleFile=true`. A fail-closed publish target errors if that resolved library is absent. This leaves the same assembly and runtime call path intact while making the LGPL library independently replaceable beside `VictusX.exe`.
+
+Release-candidate inspection must still prove that exactly one `NvAPIWrapper.dll` 0.8.1.101 is present beside the executable, is not embedded in the bundle, can be replaced independently, and is accompanied by the assembled attribution and LGPL/GPL texts. That is artifact verification, not an open source-architecture decision.
 
 ## Reconciliation Decision
 
 - Runtime dependency license identity review: **Complete for the current restore graph**.
 - MMI runtime release disposition: **Resolved at source/restore-graph level** by removing the unused duplicate CIM transport and its package graph.
 - Required package-library notice/license-text assembly: **Complete** under `app/Assets/Licenses`; source revisions and hashes are recorded in `LICENSE-SOURCES.md`.
-- NvAPIWrapper.Net distribution method: **Unresolved for self-contained single-file**. The LGPL/GPL texts and attribution are present, but the current single-file profile has not been approved for LGPL combined-work relinking/replacement compliance.
+- NvAPIWrapper.Net distribution method: **Resolved at source architecture level**. The managed library is excluded from the single-file bundle and must be distributed as a replaceable sidecar; release-candidate inspection must verify the resulting artifact.
 - Self-contained .NET runtime notices: **Pending release-candidate evidence** because the final runtime pack has not been materialized or inspected.
 - Final artifact match: **Pending** because no preview artifact exists.
 - `THIRD-PARTY-NOTICES.md`: source-assembled, but not release-ready until the pending packaging and artifact checks are resolved.
