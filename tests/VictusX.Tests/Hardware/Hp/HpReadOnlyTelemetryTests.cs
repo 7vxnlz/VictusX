@@ -274,6 +274,43 @@ public sealed class HpReadOnlyTelemetryTests
         Assert.Null(snapshot.CpuTemperatureCelsius);
     }
 
+    [Theory]
+    [InlineData("Adaptive Battery Extender", "Enable", true, "Enabled; limit values unavailable")]
+    [InlineData("Adaptive Battery Optimizer", "Disabled", false, "Disabled; limit values unavailable")]
+    [InlineData("Adaptive Battery Extender", "Automatic", null, "Supported, state unavailable")]
+    public void BatteryCareNamedSetting_ReportsOnlySupportedReadOnlyState(
+        string settingName, string currentValue, bool? expectedEnabled, string expectedText)
+    {
+        HpBatteryCareProbeResult result = HpBatteryCareProbeResult.FromSetting(settingName, currentValue);
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, null, 80, true, true, false)
+        {
+            BatteryCare = new(Now, result)
+        };
+
+        Assert.Equal(HpBatteryCareAvailability.Supported, result.Availability);
+        Assert.Equal(expectedEnabled, result.Enabled);
+        Assert.Equal(expectedText, HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).BatteryCare.Replace("Battery care: ", ""));
+        Assert.Contains("numeric limits unavailable", HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).Summary);
+    }
+
+    [Theory]
+    [InlineData((int)HpBatteryCareAvailability.Unavailable, "Battery care: Unavailable")]
+    [InlineData((int)HpBatteryCareAvailability.NotExposed, "Battery care: Not exposed by HP BIOS settings")]
+    public void BatteryCareMissingOrUnsupported_FailsClosed(
+        int availabilityValue, string expected)
+    {
+        HpBatteryCareAvailability availability = (HpBatteryCareAvailability)availabilityValue;
+        HpBatteryCareProbeResult result = availability == HpBatteryCareAvailability.NotExposed
+            ? HpBatteryCareProbeResult.NotExposed
+            : HpBatteryCareProbeResult.Unavailable;
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, null, 80, true, true, false)
+        {
+            BatteryCare = new(Now, result)
+        };
+
+        Assert.Equal(expected, HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).BatteryCare);
+    }
+
     private sealed class FakeSource : IHpReadOnlyTelemetrySource
     {
         public HpCpuTimes? Cpu { get; set; }

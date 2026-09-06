@@ -1,7 +1,7 @@
 namespace GHelper.Hardware.Hp;
 
 internal sealed record HpReadOnlyTelemetryDisplay(
-    string Cpu, string Gpu, string FanAndDevice, string Battery, string Display, string Summary);
+    string Cpu, string Gpu, string FanAndDevice, string Battery, string BatteryCare, string Display, string Summary);
 
 internal static class HpReadOnlyTelemetryFormatter
 {
@@ -26,6 +26,7 @@ internal static class HpReadOnlyTelemetryFormatter
         string state = snapshot.PolledAt is null ? "Not sampled" : fresh ? "Current" : "Stale";
         string poll = snapshot.PolledAt?.ToUniversalTime().ToString("u") ?? "Unavailable";
         string refreshRate = current.DisplayRefreshRateHz is { } hz ? $"{hz}Hz" : "Unavailable";
+        string batteryCare = FormatBatteryCare(current.BatteryCare?.Result);
         bool gpuFresh = current.GpuTemperature is { } gpu && now >= gpu.SampledAt &&
             now - gpu.SampledAt <= HpReadOnlyTelemetryProvider.MaximumSampleAge && gpu.Celsius is > 0 and <= 125;
         string gpuTemperature = gpuFresh
@@ -33,6 +34,7 @@ internal static class HpReadOnlyTelemetryFormatter
             : "Unavailable";
         string summary = $"Read-only OS telemetry: {state}; last poll: {poll}\n" +
             $"CPU load: {load} (GetSystemTimes); battery: {battery}, {ac}, {charging} (GetSystemPowerStatus).\n" +
+            $"Battery charge limit: {batteryCare} (read-only HP BIOS setting inventory; numeric limits unavailable).\n" +
             $"Display refresh rate: {refreshRate} (Windows current settings for the internal panel when identifiable).\n" +
             $"GPU temperature: {gpuTemperature} (NVIDIA NVAPI GPU-target sensor; optional installed display driver).\n" +
             "CPU temperature: Unavailable; no verified driver-free package sensor.\n" +
@@ -44,6 +46,15 @@ internal static class HpReadOnlyTelemetryFormatter
         return new(
             $"Temp: Unavailable | {load}", $"Temp: {gpuTemperature}",
             $"Fan RPM: Unavailable | {device}" + (cachedIdentity ? " (cached)" : ""),
-            batteryStatus, $"Screen: {refreshRate}", summary);
+            batteryStatus, $"Battery care: {batteryCare}", $"Screen: {refreshRate}", summary);
     }
+
+    internal static string FormatBatteryCare(HpBatteryCareProbeResult? result) => result switch
+    {
+        { Availability: HpBatteryCareAvailability.Supported, Enabled: true } => "Enabled; limit values unavailable",
+        { Availability: HpBatteryCareAvailability.Supported, Enabled: false } => "Disabled; limit values unavailable",
+        { Availability: HpBatteryCareAvailability.Supported } => "Supported, state unavailable",
+        { Availability: HpBatteryCareAvailability.NotExposed } => "Not exposed by HP BIOS settings",
+        _ => "Unavailable"
+    };
 }

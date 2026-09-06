@@ -25,6 +25,7 @@ internal sealed record HpReadOnlyTelemetrySnapshot(
     public HpGpuTemperatureSample? GpuTemperature { get; init; }
     public double? GpuTemperatureCelsius => GpuTemperature?.Celsius;
     public int? FanRpm => null;
+    public HpBatteryCareSample? BatteryCare { get; init; }
 
     public static HpReadOnlyTelemetrySnapshot Unavailable { get; } = new(null, null, null, null, null, null);
 }
@@ -32,7 +33,8 @@ internal sealed record HpReadOnlyTelemetrySnapshot(
 internal sealed class HpReadOnlyTelemetryProvider(
     IHpReadOnlyTelemetrySource source,
     HpGpuTemperaturePoller? gpu = null,
-    Func<int?>? displayRefreshRateReader = null)
+    Func<int?>? displayRefreshRateReader = null,
+    HpBatteryCarePoller? batteryCare = null)
 {
     private HpCpuTimes? previousCpu;
     private DateTimeOffset? previousCpuTime;
@@ -43,6 +45,7 @@ internal sealed class HpReadOnlyTelemetryProvider(
         previousCpu = null;
         previousCpuTime = null;
         gpu?.Reset();
+        batteryCare?.Reset();
     }
 
     public HpReadOnlyTelemetrySnapshot Capture(DateTimeOffset now)
@@ -70,7 +73,11 @@ internal sealed class HpReadOnlyTelemetryProvider(
         int? displayRefreshRate = displayRefreshRateReader is null ? null : ReadSafely(displayRefreshRateReader);
         displayRefreshRate = displayRefreshRate is > 0 and <= 1000 ? displayRefreshRate : null;
 
-        return new(now, load, percent, present, ac, charging, displayRefreshRate) { GpuTemperature = gpu?.Poll(now) };
+        return new(now, load, percent, present, ac, charging, displayRefreshRate)
+        {
+            GpuTemperature = gpu?.Poll(now),
+            BatteryCare = batteryCare?.Poll(now)
+        };
     }
 
     private int? CalculateLoad(HpCpuTimes? current, DateTimeOffset now)

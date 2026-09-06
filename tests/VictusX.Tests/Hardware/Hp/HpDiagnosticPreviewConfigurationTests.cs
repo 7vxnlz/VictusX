@@ -259,6 +259,29 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("hpLiveTelemetryProvider?.Reset();", settings);
     }
 
+    [Fact]
+    public void HpBatteryCareStatus_IsReadOnlyAndCannotEnableTheInheritedControl()
+    {
+        string source = ReadRepositoryFile("app", "Hardware", "Hp", "HpBatteryCareReadOnlySource.cs");
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+
+        Assert.Contains("root\\HP\\InstrumentedBIOS", source, StringComparison.Ordinal);
+        Assert.Contains("SELECT Name, CurrentValue FROM HP_BIOSSetting", source, StringComparison.Ordinal);
+        Assert.Contains("Adaptive Battery Extender", source, StringComparison.Ordinal);
+        Assert.Contains("Adaptive Battery Optimizer", source, StringComparison.Ordinal);
+        Assert.Contains("labelCharge.Text = display.BatteryCare;", settings, StringComparison.Ordinal);
+        Assert.Contains("labelCharge,", settings, StringComparison.Ordinal);
+        Assert.DoesNotContain("labelCharge.Enabled = true", settings, StringComparison.Ordinal);
+
+        foreach (string forbidden in new[]
+        {
+            "InvokeMethod", "SetBIOSSetting", "HP_BIOSSettingInterface", "hpqBIOSInt", "BatteryCareWrite"
+        })
+        {
+            Assert.DoesNotContain(forbidden, source, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
     private static string ReadRepositoryFile(params string[] segments)
     {
         string repositoryRoot = FindRepositoryRoot();

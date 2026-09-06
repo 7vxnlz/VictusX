@@ -451,7 +451,8 @@ namespace GHelper
         {
             hpLiveTelemetryProvider = new HpReadOnlyTelemetryProvider(new HpWindowsTelemetrySource(),
                 new HpGpuTemperaturePoller(HpNvidiaTemperatureSource.Read),
-                ReadHpDisplayRefreshRate);
+                ReadHpDisplayRefreshRate,
+                new HpBatteryCarePoller(new HpBatteryCareReadOnlySource().Read));
             components ??= new System.ComponentModel.Container();
             hpLiveTelemetryTimer = new System.Windows.Forms.Timer(components) { Interval = 1000 };
             hpLiveTelemetryTimer.Tick += (_, _) => RefreshHpLiveTelemetry();
@@ -488,6 +489,7 @@ namespace GHelper
             labelGPUFan.Text = display.Gpu;
             labelTipGPU.Text = display.FanAndDevice;
             labelBattery.Text = display.Battery;
+            labelCharge.Text = display.BatteryCare;
             labelSreen.Text = display.Display;
             panelScreen.AccessibleName = display.Display;
             if (hpLiveTelemetrySummary is not null) hpLiveTelemetrySummary.Text = display.Summary;
