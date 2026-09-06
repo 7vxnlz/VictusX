@@ -44,6 +44,33 @@ public sealed class HpDiagnosticPreviewConfigurationTests
     }
 
     [Fact]
+    public void PublishProfile_IsFailClosedAndPackagesRequiredExternalFiles()
+    {
+        string profile = ReadRepositoryFile(
+            "app",
+            "Properties",
+            "PublishProfiles",
+            "VictusX-HP-Diagnostic-win-x64.pubxml");
+        string project = ReadRepositoryFile("app", "VictusX.csproj");
+
+        Assert.Contains("<RuntimeIdentifier>win-x64</RuntimeIdentifier>", profile, StringComparison.Ordinal);
+        Assert.Contains("<SelfContained>true</SelfContained>", profile, StringComparison.Ordinal);
+        Assert.Contains("<PublishSingleFile>true</PublishSingleFile>", profile, StringComparison.Ordinal);
+        Assert.Contains("<PublishTrimmed>false</PublishTrimmed>", profile, StringComparison.Ordinal);
+        Assert.Contains("<DebugType>None</DebugType>", profile, StringComparison.Ordinal);
+        Assert.Contains("<DebugSymbols>false</DebugSymbols>", profile, StringComparison.Ordinal);
+        Assert.Contains("<CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>", profile, StringComparison.Ordinal);
+        Assert.Contains("ValidateVictusXHpPreviewPublishInputs", profile, StringComparison.Ordinal);
+        Assert.Contains("!Exists('$(MSBuildProjectDirectory)\\Assets\\VictusX.ico')", profile, StringComparison.Ordinal);
+
+        Assert.Contains("..\\LICENSE", project, StringComparison.Ordinal);
+        Assert.Contains("..\\THIRD-PARTY-NOTICES.md", project, StringComparison.Ordinal);
+        Assert.Contains("..\\tools\\run-victusx-hp-diagnostic.ps1", project, StringComparison.Ordinal);
+        Assert.Contains("<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>", project, StringComparison.Ordinal);
+        Assert.Contains("<ExcludeFromSingleFile>true</ExcludeFromSingleFile>", project, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void PublishProfile_OptsOutOfTheInheritedZipOnPublishTarget()
     {
         string profile = ReadRepositoryFile(

@@ -44,6 +44,18 @@
     <Content Include="favicon.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <None Include="..\LICENSE" Link="LICENSE">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Include="..\THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
+    <None Include="..\tools\run-victusx-hp-diagnostic.ps1" Link="tools\run-victusx-hp-diagnostic.ps1">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
