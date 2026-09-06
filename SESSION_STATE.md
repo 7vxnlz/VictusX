@@ -4,6 +4,8 @@ Hard rule: keep this file short. It is a handoff note, not a diary.
 
 ## Current State
 
+- Temperature/RPM milestone: [source/decision notes](docs/hp-temperature-fan-rpm-telemetry.md). Optional NVIDIA GPU temperature via existing NVAPI getter, bounded single-worker polling and 5-second freshness; CPU temperature and V1 fan RPM remain unavailable. No HP methods, writes, new dependencies or UI controls. Build passed (4 NU1900 warnings); 341/341 tests passed. Native runtime availability not verified; DeviceValidatedInputLength unchanged/null, fan control NO-GO.
+
 - Added [non-executable SetFanLevel preflight harness](docs/set-fan-level-first-write-harness-scaffold.md): offline gate evaluation and JSON only; no CLI/UI/transport wiring. Satisfied declarations do not authorize writes. DeviceValidatedInputLength null; first-write and normal control NO-GO.
 - Harness verification: solution build passed (4 existing NU1900 warnings); full suite 332/332 passed. No fan CLI, hardware invocation, publication or commit.
 

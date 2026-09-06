@@ -25,15 +25,22 @@ internal static class HpReadOnlyTelemetryFormatter
         string identitySource = cachedIdentity ? "cached report" : "startup snapshot";
         string state = snapshot.PolledAt is null ? "Not sampled" : fresh ? "Current" : "Stale";
         string poll = snapshot.PolledAt?.ToUniversalTime().ToString("u") ?? "Unavailable";
+        bool gpuFresh = current.GpuTemperature is { } gpu && now >= gpu.SampledAt &&
+            now - gpu.SampledAt <= HpReadOnlyTelemetryProvider.MaximumSampleAge && gpu.Celsius is > 0 and <= 125;
+        string gpuTemperature = gpuFresh
+            ? current.GpuTemperature!.Value.Celsius.ToString("0", System.Globalization.CultureInfo.InvariantCulture) + " C"
+            : "Unavailable";
         string summary = $"Read-only OS telemetry: {state}; last poll: {poll}\n" +
             $"CPU load: {load} (GetSystemTimes); battery: {battery}, {ac}, {charging} (GetSystemPowerStatus).\n" +
-            "CPU/GPU temperature and fan RPM: Unavailable; no verified sensor source.\n" +
+            $"GPU temperature: {gpuTemperature} (NVIDIA NVAPI GPU-target sensor; optional installed display driver).\n" +
+            "CPU temperature: Unavailable; no verified driver-free package sensor.\n" +
+            "Fan 1 / Fan 2 RPM: Unavailable; no verified V1 tachometer source; 0x38 is not enabled.\n" +
             $"{device} ({identitySource}); cached fan levels remain raw-only. Normal fan control: NO-GO.";
 
         string batteryStatus = current.BatteryPresent == false ? $"No battery | {ac}" :
             current.AcOnline == true && current.Charging.HasValue ? $"{battery} | AC | {charging}" : $"{battery} | {ac}";
         return new(
-            $"Temp: Unavailable | {load}", "Temp: Unavailable",
+            $"Temp: Unavailable | {load}", $"Temp: {gpuTemperature}",
             $"Fan RPM: Unavailable | {device}" + (cachedIdentity ? " (cached)" : ""),
             batteryStatus, summary);
     }

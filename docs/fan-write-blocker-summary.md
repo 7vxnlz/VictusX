@@ -1,5 +1,7 @@
 # Fan Write Blocker Summary
 
+The [temperature/RPM milestone](hp-temperature-fan-rpm-telemetry.md) adds only optional NVIDIA GPU-temperature reads. CPU temperature and V1 fan RPM discovery remain unresolved; no 0x38 or other HP method is invoked and FanGetLevel stays raw-only. No fan write/control route or validation change; normal control remains NO-GO.
+
 The [SetFanLevel preflight harness](set-fan-level-first-write-harness-scaffold.md) is internal and non-executable: supplied gates and four-byte equal-pair JSON only, no transport or CLI/UI route. Satisfied offline preflight does not authorize a write. Recovery/ABI proof remains missing, DeviceValidatedInputLength remains null, and first-write/normal control remain NO-GO.
 
 The [SetFanLevel endpoint/recovery audit](set-fan-level-endpoint-recovery-audit.md) supports2..99% -> raw1..54 as an offline default-V1 envelope only. Close8BD4 zero-handoff failures and the reference's multi-command reset/replay fallback prevent execution approval even inside that range. No exact value selected; F.31 recovery/ABI remain unvalidated, DeviceValidatedInputLength null, first-write and normal control NO-GO.

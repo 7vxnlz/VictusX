@@ -449,7 +449,8 @@ namespace GHelper
 
         private void InitializeHpLiveTelemetry()
         {
-            hpLiveTelemetryProvider = new HpReadOnlyTelemetryProvider(new HpWindowsTelemetrySource());
+            hpLiveTelemetryProvider = new HpReadOnlyTelemetryProvider(new HpWindowsTelemetrySource(),
+                new HpGpuTemperaturePoller(HpNvidiaTemperatureSource.Read));
             components ??= new System.ComponentModel.Container();
             hpLiveTelemetryTimer = new System.Windows.Forms.Timer(components) { Interval = 1000 };
             hpLiveTelemetryTimer.Tick += (_, _) => RefreshHpLiveTelemetry();

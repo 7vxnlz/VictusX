@@ -238,6 +238,21 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("if (AppConfig.IsHpVictusHardwareMode()) return;", settings, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void HpGpuTemperature_IsolatedReadDoesNotReachFanOrGpuControls()
+    {
+        string source = ReadRepositoryFile("app", "Hardware", "Hp", "HpNvidiaTemperatureSource.cs");
+        Assert.Contains("GPUApi.GetThermalSettings", source);
+        Assert.Contains("ThermalSettingsTarget.GPU", source);
+        Assert.Contains("devices.Length != 1", source);
+        Assert.Contains("gpuSensors.Length == 1", source);
+        foreach (string forbidden in new[] { "hpqBIOSInt", "HpWmi", "SetFan", "PawnIO", "NvidiaGpuControl", "HardwareControl", "GPUApi.Set", "FanGetLevel" })
+            Assert.DoesNotContain(forbidden, source);
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+        Assert.Contains("control.Enabled = false;", settings);
+        Assert.Contains("hpLiveTelemetryProvider?.Reset();", settings);
+    }
+
     private static string ReadRepositoryFile(params string[] segments)
     {
         string repositoryRoot = FindRepositoryRoot();

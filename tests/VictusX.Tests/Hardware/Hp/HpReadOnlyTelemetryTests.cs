@@ -146,6 +146,74 @@ public sealed class HpReadOnlyTelemetryTests
             property => property.Name.Contains("Validated", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void GpuReadingHasIndependentFreshnessAndDoesNotPopulateCpuOrFans()
+    {
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, 10, 75, true, true, false)
+        { GpuTemperature = new(Now, 62) };
+        Assert.Equal("Temp: 62 C", HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).Gpu);
+        Assert.Null(snapshot.CpuTemperatureCelsius);
+        Assert.Null(snapshot.FanRpm);
+        var staleGpu = snapshot with { PolledAt = Now.AddSeconds(6) };
+        Assert.Contains("Unavailable", HpReadOnlyTelemetryFormatter.Format(staleGpu, Now.AddSeconds(6), true, false).Gpu);
+        Assert.Contains("Unavailable", HpReadOnlyTelemetryFormatter.Format(snapshot, Now.AddSeconds(-1), true, false).Gpu);
+    }
+
+    [Theory]
+    [InlineData(0)] [InlineData(-1)] [InlineData(126)] [InlineData(double.NaN)] [InlineData(double.PositiveInfinity)]
+    public void InvalidGpuReadingsAreNotDisplayed(double value)
+    {
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, null, null, null, null, null)
+        { GpuTemperature = new(Now, value) };
+        Assert.Equal("Temp: Unavailable", HpReadOnlyTelemetryFormatter.Format(snapshot, Now, null, false).Gpu);
+    }
+
+    [Fact]
+    public void GpuPollingIsBoundedAndResetDiscardsPendingReading()
+    {
+        using var entered = new ManualResetEventSlim();
+        using var release = new ManualResetEventSlim();
+        int calls = 0;
+        var poller = new HpGpuTemperaturePoller(() =>
+        {
+            Interlocked.Increment(ref calls);
+            entered.Set();
+            release.Wait(TimeSpan.FromSeconds(3));
+            return 60;
+        });
+        try
+        {
+            Assert.Null(poller.Poll(Now));
+            Assert.True(entered.Wait(TimeSpan.FromSeconds(2)));
+            Assert.Null(poller.Poll(Now.AddSeconds(20)));
+            Assert.Equal(1, Volatile.Read(ref calls));
+            poller.Reset();
+        }
+        finally { release.Set(); }
+        // A reset cannot expose the old sample; the first newly admitted read has its own timestamp.
+        Assert.True(SpinWait.SpinUntil(() => poller.Poll(Now.AddSeconds(21)) is not null, TimeSpan.FromSeconds(3)));
+        var fresh = poller.Poll(Now.AddSeconds(21));
+        Assert.Equal(Now.AddSeconds(21), fresh!.Value.SampledAt);
+        Assert.Equal(2, calls);
+        Assert.Null(poller.Poll(Now.AddSeconds(27)));
+    }
+
+    [Fact]
+    public void GpuFailureClearsPriorSampleWithoutAffectingOsTelemetry()
+    {
+        int calls = 0;
+        var poller = new HpGpuTemperaturePoller(() =>
+        {
+            if (Interlocked.Increment(ref calls) > 1) throw new InvalidOperationException("driver unavailable");
+            return 65;
+        });
+        var provider = new HpReadOnlyTelemetryProvider(new FakeSource { Power = new(1, 8, 50) }, poller);
+        Assert.True(SpinWait.SpinUntil(() => provider.Capture(Now).GpuTemperature is not null, TimeSpan.FromSeconds(2)));
+        Assert.Equal(1, calls);
+        Assert.True(SpinWait.SpinUntil(() => provider.Capture(Now.AddSeconds(2)).GpuTemperature is null, TimeSpan.FromSeconds(2)));
+        Assert.Equal(50, provider.Capture(Now.AddSeconds(2)).BatteryPercent);
+    }
+
     private sealed class FakeSource : IHpReadOnlyTelemetrySource
     {
         public HpCpuTimes? Cpu { get; set; }

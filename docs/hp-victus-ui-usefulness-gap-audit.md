@@ -2,6 +2,8 @@
 
 ## Scope And Evidence
 
+Latest [temperature/RPM milestone](hp-temperature-fan-rpm-telemetry.md): optional read-only NVIDIA GPU temperature now uses the existing NVAPI dependency with bounded single-worker polling and independent freshness. CPU temperature and V1 fan RPM remain unavailable for lack of a verified safe source; 0x38 and FanGetLevel-to-RPM conversion are not adopted. Layout and fan-control NO-GO are unchanged. This supersedes the GPU-unavailable implementation note below when a valid NVIDIA sensor is present.
+
 Audit date: 2026-09-04. This is a source-level audit and implementation roadmap only. No product code, control, telemetry polling, hardware behavior, or safety permission is changed. No app, probe, or experiment was run for this audit.
 
 Implementation update (2026-09-04): the first read-only telemetry phase is now implemented without changing the audit's control decisions. The compact HP shell samples CPU load through Windows `GetSystemTimes` and battery percentage/presence/AC/charging state through Windows `GetSystemPowerStatus`. Device detection comes from the existing startup capability snapshot, with cached diagnostic identity as a labeled fallback. CPU temperature, GPU temperature, and fan RPM remain `Unavailable` because no verified safe source exists; FanGetLevel is not used or interpreted as RPM. Polling runs on the UI thread only while the shell is visible, resets delta state when hidden, and marks samples stale after five seconds. Diagnostic shows the source and freshness summary as read-only text.

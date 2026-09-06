@@ -19,15 +19,16 @@ internal sealed record HpReadOnlyTelemetrySnapshot(
     bool? AcOnline,
     bool? Charging)
 {
-    // No verified temperature or tachometer source is available in this path.
+    // CPU temperature and tachometer discovery remain unsupported on the V1 target.
     public double? CpuTemperatureCelsius => null;
-    public double? GpuTemperatureCelsius => null;
+    public HpGpuTemperatureSample? GpuTemperature { get; init; }
+    public double? GpuTemperatureCelsius => GpuTemperature?.Celsius;
     public int? FanRpm => null;
 
     public static HpReadOnlyTelemetrySnapshot Unavailable { get; } = new(null, null, null, null, null, null);
 }
 
-internal sealed class HpReadOnlyTelemetryProvider(IHpReadOnlyTelemetrySource source)
+internal sealed class HpReadOnlyTelemetryProvider(IHpReadOnlyTelemetrySource source, HpGpuTemperaturePoller? gpu = null)
 {
     private HpCpuTimes? previousCpu;
     private DateTimeOffset? previousCpuTime;
@@ -37,6 +38,7 @@ internal sealed class HpReadOnlyTelemetryProvider(IHpReadOnlyTelemetrySource sou
     {
         previousCpu = null;
         previousCpuTime = null;
+        gpu?.Reset();
     }
 
     public HpReadOnlyTelemetrySnapshot Capture(DateTimeOffset now)
@@ -61,7 +63,7 @@ internal sealed class HpReadOnlyTelemetryProvider(IHpReadOnlyTelemetrySource sou
             }
         }
 
-        return new(now, load, percent, present, ac, charging);
+        return new(now, load, percent, present, ac, charging) { GpuTemperature = gpu?.Poll(now) };
     }
 
     private int? CalculateLoad(HpCpuTimes? current, DateTimeOffset now)
