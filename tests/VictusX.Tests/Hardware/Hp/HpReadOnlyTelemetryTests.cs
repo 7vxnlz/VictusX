@@ -27,6 +27,7 @@ public sealed class HpReadOnlyTelemetryTests
         Assert.Contains("Fan RPM: Unavailable", display.FanAndDevice);
         Assert.Contains("Device: Unknown", display.FanAndDevice);
         Assert.Equal("Unavailable | AC unknown", display.Battery);
+        Assert.Equal("Screen: Unavailable", display.Display);
     }
 
     [Fact]
@@ -108,10 +109,12 @@ public sealed class HpReadOnlyTelemetryTests
     [Fact]
     public void StaleReadings_AreUnavailableWithLastPollTimePreserved()
     {
-        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, 30, 75, true, true, true);
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, 30, 75, true, true, true, 144);
         var fresh = HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false);
         Assert.Contains("30% load", fresh.Cpu);
         Assert.Equal("75% | AC | Charging", fresh.Battery);
+        Assert.Equal("Screen: 144Hz", fresh.Display);
+        Assert.Contains("Display refresh rate: 144Hz", fresh.Summary);
         Assert.Contains("GetSystemTimes", fresh.Summary);
         Assert.Contains("GetSystemPowerStatus", fresh.Summary);
 
@@ -120,7 +123,38 @@ public sealed class HpReadOnlyTelemetryTests
         Assert.Contains("2026-09-04 12:00:00Z", stale.Summary);
         Assert.DoesNotContain("30%", stale.Cpu);
         Assert.DoesNotContain("75%", stale.Battery);
+        Assert.Equal("Screen: Unavailable", stale.Display);
         Assert.Contains("Unknown", stale.Cpu);
+    }
+
+    [Theory]
+    [InlineData(60, "Screen: 60Hz")]
+    [InlineData(144, "Screen: 144Hz")]
+    [InlineData(null, "Screen: Unavailable")]
+    [InlineData(0, "Screen: Unavailable")]
+    [InlineData(-1, "Screen: Unavailable")]
+    [InlineData(1001, "Screen: Unavailable")]
+    public void DisplayRefreshRate_IsFormattedWhenValidAndFailsClosed(int? refreshRate, string expectedDisplay)
+    {
+        var provider = new HpReadOnlyTelemetryProvider(new FakeSource(), displayRefreshRateReader: () => refreshRate);
+        var snapshot = provider.Capture(Now);
+        var display = HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false);
+
+        Assert.Equal(refreshRate is > 0 and <= 1000 ? refreshRate : null, snapshot.DisplayRefreshRateHz);
+        Assert.Equal(expectedDisplay, display.Display);
+        Assert.Contains(expectedDisplay.Replace("Screen: ", "Display refresh rate: "), display.Summary);
+    }
+
+    [Fact]
+    public void DisplayRefreshRateFailure_DoesNotCrashOrRetainAValue()
+    {
+        var provider = new HpReadOnlyTelemetryProvider(new FakeSource(), displayRefreshRateReader: () => throw new InvalidOperationException("display missing"));
+        var snapshot = provider.Capture(Now);
+        var display = HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false);
+
+        Assert.Null(snapshot.DisplayRefreshRateHz);
+        Assert.Equal("Screen: Unavailable", display.Display);
+        Assert.Contains("Display refresh rate: Unavailable", display.Summary);
     }
 
     [Fact]

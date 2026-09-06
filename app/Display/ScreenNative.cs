@@ -84,7 +84,7 @@ namespace GHelper.Display
         /// Optimized: single QueryDisplayConfig pass resolves the GDI name via
         /// DISPLAYCONFIG_SOURCE_DEVICE_NAME, eliminating the EnumDisplayDevices loop.
         /// </summary>
-        public static string? FindLaptopScreen(bool log = false)
+        public static string? FindLaptopScreen(bool log = false, bool rememberInternalDisplay = true)
         {
             try
             {
@@ -111,9 +111,9 @@ namespace GHelper.Display
                     if (!IsInternalDisplay(targetName)) continue;
 
                     if (log) Logger.WriteLine(targetName.monitorDevicePath + " " + targetName.outputTechnology);
-                    AppConfig.Set("internal_display", targetName.monitorFriendlyDeviceName);
+                    if (rememberInternalDisplay) AppConfig.Set("internal_display", targetName.monitorFriendlyDeviceName);
 
-                    // Resolve GDI device name directly from the source path entry — no EnumDisplayDevices needed
+                    // Resolve GDI device name directly from the source path entry ï¿½ no EnumDisplayDevices needed
                     var sourceName = new DisplayNative.DISPLAYCONFIG_SOURCE_DEVICE_NAME();
                     sourceName.header.type = DisplayNative.DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
                     sourceName.header.size = (uint)Marshal.SizeOf(sourceName);

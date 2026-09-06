@@ -4,7 +4,7 @@
 
 CPU follow-up: [source review](hp-temperature-fan-rpm-telemetry.md) confirms existing Windows thermal-zone counters, inherited ASUS/Qualcomm paths and conflicting HP 0x23 selector labels do not establish F.31 CPU-package temperature. CPU remains Unavailable; no provider, dependency, hardware access or layout change was added. Optional GPU temperature remains separate.
 
-Latest [temperature/RPM milestone](hp-temperature-fan-rpm-telemetry.md): optional read-only NVIDIA GPU temperature now uses the existing NVAPI dependency with bounded single-worker polling and independent freshness. CPU temperature and V1 fan RPM remain unavailable for lack of a verified safe source; 0x38 and FanGetLevel-to-RPM conversion are not adopted. Layout and fan-control NO-GO are unchanged. This supersedes the GPU-unavailable implementation note below when a valid NVIDIA sensor is present.
+Latest [temperature/RPM milestone](hp-temperature-fan-rpm-telemetry.md): optional read-only NVIDIA GPU temperature now uses the existing NVAPI dependency with bounded single-worker polling and independent freshness. CPU temperature and V1 fan RPM remain unavailable for lack of a verified safe source; 0x38 and FanGetLevel-to-RPM conversion are not adopted. HP mode also shows the current Windows refresh rate for the internal panel when `ScreenNative` can identify it without persisting display cache changes and `EnumDisplaySettingsEx` returns a valid current frequency. Layout and fan-control NO-GO are unchanged. This supersedes the GPU-unavailable implementation note below when a valid NVIDIA sensor is present.
 
 Audit date: 2026-09-04. This is a source-level audit and implementation roadmap only. No product code, control, telemetry polling, hardware behavior, or safety permission is changed. No app, probe, or experiment was run for this audit.
 
@@ -108,7 +108,7 @@ Read-only adapter/status detection may proceed through reviewed sources. Vendor 
 
 The inherited designer includes `60Hz` and `120Hz + OD` presets and an automatic mode. HP skips `ScreenControl.InitScreen`, so these are not detected target display capabilities. Overdrive, HDR/miniled, and other inherited options likewise must not imply HP support.
 
-OS current/supported-mode enumeration is a plausible read-only addition after reviewing the existing `ScreenNative` call boundary used by `ScreenControl`. Identify the internal panel versus external monitors and show returned modes rather than assuming a particular rate.
+OS current-mode enumeration is now implemented as read-only status through the existing `ScreenNative.FindLaptopScreen(rememberInternalDisplay: false)` and `ScreenNative.GetRefreshRate()` boundary. HP mode shows the current internal-panel refresh rate when Windows identifies the internal display and returns a valid current frequency; missing, invalid, or ambiguous values fail closed to `Unavailable`. Supported-mode enumeration is still future work.
 
 An OS refresh-rate change is a display configuration change, not a fan write, but it is not automatically safe to enable through the inherited path: `SetScreen` also handles ASUS overdrive and miniled state. Future switching needs a narrowly separated OS-only design, supported-mode validation, explicit user action, timed rollback, and multi-monitor/hotplug/sleep tests. Order: detect, verify, design reversible switching, then separately authorize implementation. No automatic AC/battery switching yet.
 
@@ -194,7 +194,7 @@ No fan slider, fan toggle, fan curve, or pulse/run button should be added. Norma
 | --- | --- | --- |
 | 1. Clear UI states and labels | Within the next telemetry task, label unavailable/cached/unknown fields using existing shell primitives | No geometry rewrite; no default interpreted as measured/applied; disabled controls stay disabled |
 | 2. Live read-only CPU/GPU/fan/battery status | Start with proven OS load/battery sources; add temperature/RPM only where source review succeeds | Freshness, units, error/null behavior, responsiveness and disposal; no probing or write fallback |
-| 3. Display/keyboard/battery capability detection | Identify actual display modes and research backlight/conservation capabilities | Exact-device source evidence; unknown stays unknown; no capability-discovery writes |
+| 3. Display/keyboard/battery capability detection | Current refresh rate is read-only status; identify supported display modes and research backlight/conservation capabilities | Exact-device source evidence; unknown stays unknown; no capability-discovery writes |
 | 4. Proven non-fan controls only | Separately design/review one reversible operation at a time, with OS display switching a candidate | Explicit authorization, correct device/mode, bounded inputs, rollback/recovery and non-admin tests; no blanket enablement or performance/power writes |
 | 5. Fan research continuation | Review existing proof gaps and design missing restore/readback/safety evidence | Separate approval for any future CLI execution; no experiment in this roadmap task and no research action in UI |
 | 6. Normal fan control only if future evidence allows | Reassess all normal-control gates before even considering product controls | Documented decision plus exact-device safety/restore evidence; currently NO-GO, with no promised delivery date |

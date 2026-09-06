@@ -450,7 +450,8 @@ namespace GHelper
         private void InitializeHpLiveTelemetry()
         {
             hpLiveTelemetryProvider = new HpReadOnlyTelemetryProvider(new HpWindowsTelemetrySource(),
-                new HpGpuTemperaturePoller(HpNvidiaTemperatureSource.Read));
+                new HpGpuTemperaturePoller(HpNvidiaTemperatureSource.Read),
+                ReadHpDisplayRefreshRate);
             components ??= new System.ComponentModel.Container();
             hpLiveTelemetryTimer = new System.Windows.Forms.Timer(components) { Interval = 1000 };
             hpLiveTelemetryTimer.Tick += (_, _) => RefreshHpLiveTelemetry();
@@ -487,7 +488,16 @@ namespace GHelper
             labelGPUFan.Text = display.Gpu;
             labelTipGPU.Text = display.FanAndDevice;
             labelBattery.Text = display.Battery;
+            labelSreen.Text = display.Display;
+            panelScreen.AccessibleName = display.Display;
             if (hpLiveTelemetrySummary is not null) hpLiveTelemetrySummary.Text = display.Summary;
+        }
+
+        private static int? ReadHpDisplayRefreshRate()
+        {
+            string? laptopScreen = ScreenNative.FindLaptopScreen(rememberInternalDisplay: false);
+            int refreshRate = ScreenNative.GetRefreshRate(laptopScreen);
+            return refreshRate > 0 ? refreshRate : null;
         }
 
         private void ConfigureHpReadOnlySection(Control parent)

@@ -4,6 +4,8 @@ Hard rule: keep this file short. It is a handoff note, not a diary.
 
 ## Current State
 
+- HP read-only refresh-rate status: HP mode now displays the current Windows internal-panel refresh rate when `ScreenNative.FindLaptopScreen(rememberInternalDisplay: false)` and `GetRefreshRate()` return a valid value; missing/ambiguous/invalid values show Unavailable. No display switching, new controls, dependencies, fan code, WMI methods, config cache write, or hardware writes were added.
+- Refresh-rate verification: build passed with 4 existing NU1900 warnings; 354/354 tests passed.
 - CPU-only source follow-up: existing thermal-zone/ASUS/Qualcomm and ambiguous HP 0x23 readings do not prove F.31 CPU-package identity. CPU stays Unavailable; added cached/freshness rejection tests and documented candidates in `docs/hp-temperature-fan-rpm-telemetry.md`. No runtime code, dependency, driver or hardware access added.
 - CPU follow-up verification: build passed with 4 existing NU1900 warnings; 347/347 tests passed. No runtime launch or hardware probe performed.
 

@@ -17,7 +17,8 @@ internal sealed record HpReadOnlyTelemetrySnapshot(
     int? BatteryPercent,
     bool? BatteryPresent,
     bool? AcOnline,
-    bool? Charging)
+    bool? Charging,
+    int? DisplayRefreshRateHz = null)
 {
     // CPU temperature and tachometer discovery remain unsupported on the V1 target.
     public double? CpuTemperatureCelsius => null;
@@ -28,7 +29,10 @@ internal sealed record HpReadOnlyTelemetrySnapshot(
     public static HpReadOnlyTelemetrySnapshot Unavailable { get; } = new(null, null, null, null, null, null);
 }
 
-internal sealed class HpReadOnlyTelemetryProvider(IHpReadOnlyTelemetrySource source, HpGpuTemperaturePoller? gpu = null)
+internal sealed class HpReadOnlyTelemetryProvider(
+    IHpReadOnlyTelemetrySource source,
+    HpGpuTemperaturePoller? gpu = null,
+    Func<int?>? displayRefreshRateReader = null)
 {
     private HpCpuTimes? previousCpu;
     private DateTimeOffset? previousCpuTime;
@@ -63,7 +67,10 @@ internal sealed class HpReadOnlyTelemetryProvider(IHpReadOnlyTelemetrySource sou
             }
         }
 
-        return new(now, load, percent, present, ac, charging) { GpuTemperature = gpu?.Poll(now) };
+        int? displayRefreshRate = displayRefreshRateReader is null ? null : ReadSafely(displayRefreshRateReader);
+        displayRefreshRate = displayRefreshRate is > 0 and <= 1000 ? displayRefreshRate : null;
+
+        return new(now, load, percent, present, ac, charging, displayRefreshRate) { GpuTemperature = gpu?.Poll(now) };
     }
 
     private int? CalculateLoad(HpCpuTimes? current, DateTimeOffset now)

@@ -228,6 +228,12 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("GetSystemPowerStatus", source, StringComparison.Ordinal);
 
         string settings = ReadRepositoryFile("app", "Settings.cs");
+        Assert.Contains("ScreenNative.FindLaptopScreen(rememberInternalDisplay: false)", settings, StringComparison.Ordinal);
+        Assert.Contains("ScreenNative.GetRefreshRate(laptopScreen)", settings, StringComparison.Ordinal);
+        int refreshReaderStart = settings.IndexOf("private static int? ReadHpDisplayRefreshRate", StringComparison.Ordinal);
+        int refreshReaderEnd = settings.IndexOf("private void ConfigureHpReadOnlySection", refreshReaderStart, StringComparison.Ordinal);
+        string refreshReader = settings.Substring(refreshReaderStart, refreshReaderEnd - refreshReaderStart);
+        Assert.DoesNotContain("ScreenControl.SetScreen", refreshReader, StringComparison.Ordinal);
         Assert.Contains("System.Windows.Forms.Timer(components)", settings, StringComparison.Ordinal);
         Assert.Contains("hpLiveTelemetryTimer.Stop();", settings, StringComparison.Ordinal);
         Assert.Contains("hpLiveTelemetryProvider?.Reset();", settings, StringComparison.Ordinal);
