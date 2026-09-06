@@ -214,6 +214,32 @@ public sealed class HpReadOnlyTelemetryTests
         Assert.Equal(50, provider.Capture(Now.AddSeconds(2)).BatteryPercent);
     }
 
+    [Theory]
+    [InlineData(-1)] [InlineData(0)] [InlineData(6)]
+    public void CpuPackageTemperatureRemainsUnavailableRegardlessOfOsSampleFreshness(int ageSeconds)
+    {
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, 70, 80, true, true, false);
+        var display = HpReadOnlyTelemetryFormatter.Format(snapshot, Now.AddSeconds(ageSeconds), true, false);
+        Assert.Null(snapshot.CpuTemperatureCelsius);
+        Assert.StartsWith("Temp: Unavailable", display.Cpu);
+        Assert.Contains("no verified driver-free package sensor", display.Summary);
+    }
+
+    [Theory]
+    [InlineData("60")] [InlineData("0")] [InlineData("NaN")]
+    public void UnidentifiedCachedThermalValueCannotBecomeCpuPackageTemperature(string rawTemperature)
+    {
+        var report = new HpDiagnosticReportLoadResult(HpDiagnosticReportLoadStatus.Loaded, new()
+        {
+            ["LooksLikeHp"] = "true", ["LooksLikeVictus"] = "true",
+            ["CurrentTemperature"] = rawTemperature, ["CpuTemperature"] = rawTemperature
+        });
+        var snapshot = new HpReadOnlyTelemetryProvider(new FakeSource()).Capture(Now);
+        var display = HpReadOnlyTelemetryFormatter.Format(snapshot, Now, report.GetHpVictusDetected(), true);
+        Assert.StartsWith("Temp: Unavailable", display.Cpu);
+        Assert.Null(snapshot.CpuTemperatureCelsius);
+    }
+
     private sealed class FakeSource : IHpReadOnlyTelemetrySource
     {
         public HpCpuTimes? Cpu { get; set; }

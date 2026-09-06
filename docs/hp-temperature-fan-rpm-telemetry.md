@@ -2,6 +2,23 @@
 
 ## Implementation And Discovery Decision
 
+### CPU Source Follow-Up
+
+The follow-up CPU-only review found no trustworthy CPU-package source already wired into this HP runtime. CPU temperature therefore remains **Unavailable**, as required when source identity is ambiguous. No speculative sensor provider, CPU polling task or dependency is added.
+
+| Candidate | Evidence and disposition |
+| --- | --- |
+| Windows WMI/CIM | Existing System.Management/Microsoft.Management.Infrastructure packages provide query transport, not proof of sensor identity. MSAcpi_ThermalZoneTemperature describes a thermal zone; no exact-target CPU-package mapping is recorded. Rejected for CPU labeling. |
+| PerformanceCounter | Inherited HardwareControl.GetCPUTemp reads Thermal Zone Information/Temperature for `\\_TZ.THRM`; the instance name and Kelvin conversion do not prove CPU-package identity. CPU utilization counters are not temperature sensors. |
+| Inherited sensor code | HardwareControl.GetCPUTemp additionally uses ASUS ACPI; GetCPUTempWMI selects the Qualcomm `ACPI\\QCOM0C5A\\1_0` instance. Neither is an established source for this AMD Victus. These helpers remain outside the HP telemetry path. |
+| HP BIOS selector | omencore HpWmiBios.GetTemperature (same revision listed below) reads 0x23 with `[01,00,00,00]`, accepts byte zero in 1..109, and labels it CPU. The [existing thermal investigation](hp-temperature-readonly-investigation.md) records contradictory ambient/board labels in other references. Numeric plausibility does not resolve that conflict for F.31. No new BIOS query is implemented or invoked. |
+| LibreHardwareMonitor | No package reference or source usage was found in the VictusX application search. Reference worker/library stacks are not an already available HP CPU provider; no monitor/driver is installed or opened. No external running sensor service is assumed. |
+| NVIDIA NVAPI | Existing dependency supplies GPU-target temperature only; it is not a CPU source. Existing optional GPU reads are unchanged. |
+
+The reference WmiBiosMonitor also explicitly tracks frozen AMD BIOS readings. Re-reading a value cannot prove that the firmware refreshed it; neither a successful query nor an in-range number establishes CPU-package accuracy. This review does not claim every possible Windows/third-party CPU source is unavailable, only that the inspected existing sources do not meet the identity requirements.
+
+No valid real CPU sample exists to exercise a numeric CPU display path. Regression tests instead enforce unavailable output for fresh/stale/future OS snapshots and plausible or invalid untyped cached temperatures. Existing hidden-window stop/reset, stale GPU tests and source-boundary tests continue to apply; no additional polling is introduced. A future implementation needs exact-target sensor identity and freshness evidence or a separately reviewed driver-free sensor feed before wiring a numeric CPU field.
+
 This is a partial read-only milestone: optional NVIDIA GPU temperature is implemented. CPU temperature and Fan 1 / Fan 2 RPM remain unavailable on this V1 target because the inspected sources do not establish safe, reliable readings. No HP BIOS method, new dependency, driver installation, fan command, UI control or control-enabling change is added. DeviceValidatedInputLength remains null; normal fan control remains NO-GO.
 
 | Value | Source class / decision |

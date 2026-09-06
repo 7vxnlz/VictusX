@@ -2,6 +2,8 @@
 
 ## Scope And Evidence
 
+CPU follow-up: [source review](hp-temperature-fan-rpm-telemetry.md) confirms existing Windows thermal-zone counters, inherited ASUS/Qualcomm paths and conflicting HP 0x23 selector labels do not establish F.31 CPU-package temperature. CPU remains Unavailable; no provider, dependency, hardware access or layout change was added. Optional GPU temperature remains separate.
+
 Latest [temperature/RPM milestone](hp-temperature-fan-rpm-telemetry.md): optional read-only NVIDIA GPU temperature now uses the existing NVAPI dependency with bounded single-worker polling and independent freshness. CPU temperature and V1 fan RPM remain unavailable for lack of a verified safe source; 0x38 and FanGetLevel-to-RPM conversion are not adopted. Layout and fan-control NO-GO are unchanged. This supersedes the GPU-unavailable implementation note below when a valid NVIDIA sensor is present.
 
 Audit date: 2026-09-04. This is a source-level audit and implementation roadmap only. No product code, control, telemetry polling, hardware behavior, or safety permission is changed. No app, probe, or experiment was run for this audit.

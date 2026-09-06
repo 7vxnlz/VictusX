@@ -4,6 +4,9 @@ Hard rule: keep this file short. It is a handoff note, not a diary.
 
 ## Current State
 
+- CPU-only source follow-up: existing thermal-zone/ASUS/Qualcomm and ambiguous HP 0x23 readings do not prove F.31 CPU-package identity. CPU stays Unavailable; added cached/freshness rejection tests and documented candidates in `docs/hp-temperature-fan-rpm-telemetry.md`. No runtime code, dependency, driver or hardware access added.
+- CPU follow-up verification: build passed with 4 existing NU1900 warnings; 347/347 tests passed. No runtime launch or hardware probe performed.
+
 - Temperature/RPM milestone: [source/decision notes](docs/hp-temperature-fan-rpm-telemetry.md). Optional NVIDIA GPU temperature via existing NVAPI getter, bounded single-worker polling and 5-second freshness; CPU temperature and V1 fan RPM remain unavailable. No HP methods, writes, new dependencies or UI controls. Build passed (4 NU1900 warnings); 341/341 tests passed. Native runtime availability not verified; DeviceValidatedInputLength unchanged/null, fan control NO-GO.
 
 - Added [non-executable SetFanLevel preflight harness](docs/set-fan-level-first-write-harness-scaffold.md): offline gate evaluation and JSON only; no CLI/UI/transport wiring. Satisfied declarations do not authorize writes. DeviceValidatedInputLength null; first-write and normal control NO-GO.
