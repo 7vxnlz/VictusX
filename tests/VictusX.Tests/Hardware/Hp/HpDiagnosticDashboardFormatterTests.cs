@@ -263,9 +263,6 @@ public sealed class HpDiagnosticDashboardFormatterTests
             RootWmiReadiness = "Ready",
             HpqBIntMReadiness = "Ready",
             HpqBDataInReadiness = "Ready",
-            CimRootWmiReadiness = "Ready",
-            CimHpqBIntMReadiness = "Ready",
-            CimMethodMetadataReadiness = "Ready",
             SystemDesignDataDecodeStatus = "Succeeded",
             SoftwareFanControlSupport = "Declared",
             FanCount = "2",
@@ -275,7 +272,7 @@ public sealed class HpDiagnosticDashboardFormatterTests
         });
 
         Assert.Equal("Ready", summary.DeviceStatus);
-        Assert.Equal("Ready", summary.WmiCimStatus);
+        Assert.Equal("Ready", summary.WmiStatus);
         Assert.Equal("Ready", summary.ReadOnlyTelemetryStatus);
         Assert.Equal("Ready", summary.FanReadOnlyStatus);
         Assert.Equal(HpDiagnosticDashboardFormatter.SetFanMaxStatus, summary.FanControlStatus);
@@ -287,7 +284,7 @@ public sealed class HpDiagnosticDashboardFormatterTests
         HpDiagnosticDashboardHealthSummary summary = HpDiagnosticDashboardFormatter.BuildHealthSummary(new());
 
         Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.DeviceStatus);
-        Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.WmiCimStatus);
+        Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.WmiStatus);
         Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.ReadOnlyTelemetryStatus);
         Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.FanReadOnlyStatus);
         Assert.Equal(HpDiagnosticDashboardFormatter.SetFanMaxStatus, summary.FanControlStatus);
@@ -301,13 +298,10 @@ public sealed class HpDiagnosticDashboardFormatterTests
             IsHpVictusDetected = true,
             RootWmiReadiness = HpDiagnosticDashboardFormatter.NotAvailable,
             HpqBIntMReadiness = HpDiagnosticDashboardFormatter.NotAvailable,
-            HpqBDataInReadiness = HpDiagnosticDashboardFormatter.NotAvailable,
-            CimRootWmiReadiness = HpDiagnosticDashboardFormatter.NotAvailable,
-            CimHpqBIntMReadiness = HpDiagnosticDashboardFormatter.NotAvailable,
-            CimMethodMetadataReadiness = HpDiagnosticDashboardFormatter.NotAvailable
+            HpqBDataInReadiness = HpDiagnosticDashboardFormatter.NotAvailable
         });
 
-        Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.WmiCimStatus);
+        Assert.Equal(HpDiagnosticDashboardFormatter.NotAvailable, summary.WmiStatus);
     }
 
     [Fact]

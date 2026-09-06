@@ -8,21 +8,20 @@ No `packages.lock.json` exists. NuGet cache metadata and authoritative upstream 
 
 ## Application Dependencies
 
-These eight direct package references and three resolved transitives are candidates for the future application preview payload. Source-level license identities are reviewed; release packaging actions remain open.
+These seven direct package references and one resolved transitive are candidates for the future application preview payload. Source-level license identities are reviewed; release packaging actions remain open.
 
 | Package | Version | Resolution status | Local license/notice evidence |
 | --- | --- | --- | --- |
 | FftSharp | 2.2.0 | Direct | MIT; reviewed |
 | HidSharpCore | 1.3.0 | Direct | Apache-2.0 plus upstream NOTICE; reviewed |
-| Microsoft.Management.Infrastructure | 3.0.0 | Direct | MIT; reviewed |
 | NAudio.Wasapi | 2.3.0 | Direct | MIT; reviewed |
 | NvAPIWrapper.Net | 0.8.1.101 | Direct | LGPL-3.0; reviewed, packaging compliance pending |
 | System.Management | 10.0.10 | Direct | MIT; reviewed |
 | TaskScheduler | 2.12.2 | Direct | MIT; reviewed |
 | WinForms.DataVisualization | 1.10.2 | Direct | MIT; reviewed |
-| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | Transitive | MIT; reviewed, artifact presence pending |
-| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Transitive | Custom Microsoft terms; reviewed, release blocker |
 | NAudio.Core | 2.3.0 | Transitive | MIT; reviewed |
+
+The former MMI direct dependency and its Runtime.Win/Runtime.Unix transitives were removed after tracing their only use to a duplicate read-only CIM readiness probe. The restored application graph contains no MMI package; final artifact inspection must confirm no stale files are distributed.
 
 ## Test-Only Dependencies
 
@@ -58,8 +57,8 @@ The test-only list should be reviewed separately if any test or developer toolin
 
 ## Unknowns and Current Status
 
-The current graph's license identities and visible notice obligations are established in [Runtime Dependency License Review](runtime-dependency-license-review.md). Release remains blocked by the restrictive Microsoft.Management.Infrastructure.Runtime.Win disposition, required notice-file assembly, final package inspection, the inherited icon, signing/checksums, and clean-machine packaged validation.
+The current graph's license identities and visible notice obligations are established in [Runtime Dependency License Review](runtime-dependency-license-review.md). Release remains blocked by required notice-file assembly, final package inspection, the inherited icon, signing/checksums, and clean-machine packaged validation.
 
 ## Recommended Next Safe Task
 
-Resolve or remove Microsoft.Management.Infrastructure.Runtime.Win for distribution, then assemble the required dependency license/notice files and perform final package-content confirmation. Do not publish until those release checks are complete.
+Assemble the required dependency license/notice files and perform final package-content confirmation, including confirmation that no stale MMI asset is present. Do not publish until those release checks are complete.

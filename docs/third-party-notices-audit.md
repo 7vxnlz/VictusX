@@ -17,15 +17,15 @@ This is a repository-evidence checkpoint for a future HP diagnostic preview. It 
 | --- | --- | --- |
 | `LICENSE` | Present; GPLv3 text | Include the applicable license text and verify its presentation in the package. |
 | README credits | Present for G-Helper and research references | Add a concise package attribution that names G-Helper, the source location/commit, and that VictusX is modified. |
-| `THIRD-PARTY-NOTICES.md` | Draft records reviewed license identities; release packaging remains pending | Resolve the restrictive runtime terms, assemble required license/notices, and compare against final package contents before distribution. |
+| `THIRD-PARTY-NOTICES.md` | Draft records reviewed license identities; release packaging remains pending | Assemble required license/notices and compare against final package contents before distribution. |
 | Package lock | Not found | Keep a clean-restore comparison step before packaging. |
 | Resolved dependency inventory | Locally restored assets were inspected | See [Dependency Notice Inventory](dependency-notice-inventory.md); repeat from a clean restore before packaging. |
 | Package license evidence | Recorded for the current graph | See [Runtime Dependency License Review](runtime-dependency-license-review.md); required release files and artifact matching remain open. |
-| Runtime dependency review evidence | Source-level review complete | Microsoft.Management.Infrastructure.Runtime.Win 3.0.0 remains a release blocker under its package-supplied custom terms. |
+| Runtime dependency review evidence | Source-level review complete | MMI runtime blocker resolved by removing the duplicate probe/package graph; final artifact must confirm absence. |
 
 ## NuGet Considerations
 
-`app/VictusX.csproj` directly references FftSharp, HidSharpCore, NAudio.Wasapi, NvAPIWrapper.Net, Microsoft.Management.Infrastructure, System.Management, TaskScheduler, and WinForms.DataVisualization. [Dependency Notice Inventory](dependency-notice-inventory.md) records their locally resolved versions and discovered transitives. [Runtime Dependency License Review](runtime-dependency-license-review.md) records the authoritative source-level license evidence and visible notice requirements.
+`app/VictusX.csproj` directly references FftSharp, HidSharpCore, NAudio.Wasapi, NvAPIWrapper.Net, System.Management, TaskScheduler, and WinForms.DataVisualization. [Dependency Notice Inventory](dependency-notice-inventory.md) records their locally resolved versions and discovered transitives. [Runtime Dependency License Review](runtime-dependency-license-review.md) records the authoritative source-level license evidence and visible notice requirements.
 
 ## Future Preview Distribution Gate
 
@@ -44,8 +44,8 @@ Use [Runtime Dependency License Review Evidence Checklist](runtime-dependency-li
 
 ## Still Blocked or Unknown
 
-The current dependency graph and license identities are reviewed. Required license/notice-file assembly, the Microsoft.Management.Infrastructure.Runtime.Win distribution disposition, package-runtime contents, and final source-distribution presentation remain unresolved. The inherited icon, signing/checksum plan, and clean-machine packaged smoke test are also incomplete. Release remains blocked; this audit does not authorize a publish.
+The current dependency graph and license identities are reviewed. Required license/notice-file assembly, package-runtime contents, and final source-distribution presentation remain unresolved. The inherited icon, signing/checksum plan, and clean-machine packaged smoke test are also incomplete. Release remains blocked; this audit does not authorize a publish.
 
 ## Recommended Next Safe Task
 
-Resolve or remove Microsoft.Management.Infrastructure.Runtime.Win for distribution, then assemble the required license/notice files and compare them against a final package file list. Keep the notices marked draft until that work is complete.
+Assemble the required license/notice files and compare them against a final package file list, explicitly confirming that no stale MMI runtime asset is included. Keep the notices marked draft until that work is complete.

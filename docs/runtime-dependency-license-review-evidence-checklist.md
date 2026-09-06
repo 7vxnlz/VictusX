@@ -22,7 +22,6 @@ No final preview ZIP or installer exists yet, so package-content matching cannot
 | --- | --- | --- |
 | FftSharp | 2.2.0 | License evidence reviewed; release notice pending |
 | HidSharpCore | 1.3.0 | Apache-2.0/NOTICE reviewed; release files pending |
-| Microsoft.Management.Infrastructure | 3.0.0 | MIT evidence reviewed; Windows runtime disposition pending |
 | NAudio.Wasapi | 2.3.0 | License evidence reviewed; release notice pending |
 | NvAPIWrapper.Net | 0.8.1.101 | LGPL-3.0 evidence reviewed; packaging compliance pending |
 | System.Management | 10.0.10 | License evidence reviewed; release notice pending |
@@ -33,9 +32,9 @@ No final preview ZIP or installer exists yet, so package-content matching cannot
 
 | Package | Version | Current status |
 | --- | --- | --- |
-| Microsoft.Management.Infrastructure.Runtime.Unix | 3.0.0 | License evidence reviewed; artifact presence pending |
-| Microsoft.Management.Infrastructure.Runtime.Win | 3.0.0 | Custom terms reviewed; release blocked pending exclusion/replacement or clearance |
 | NAudio.Core | 2.3.0 | License evidence reviewed; release notice pending |
+
+The former MMI package family is excluded from the current project and restored graph. Final artifact inspection must confirm that no stale MMI binary or native runtime asset is present.
 
 ## Required Evidence Per Dependency
 
@@ -101,7 +100,7 @@ Package vulnerability audit data is also a separate signal. If restore/build/tes
 
 ## Remaining Blocked Items
 
-Runtime dependency license identity review is complete for the current graph. Release remains blocked because the Microsoft.Management.Infrastructure.Runtime.Win terms are not cleared for VictusX distribution, required license/notice files are not assembled, and final package contents are unavailable. Icon attribution depends on a future approved VictusX icon asset, signing/checksum evidence is incomplete, and clean-machine validation has not been run against a package candidate.
+Runtime dependency license identity review is complete for the current graph, and the MMI runtime disposition is resolved at source/restore-graph level. Release remains blocked because required license/notice files are not assembled and final package contents are unavailable. Icon attribution depends on a future approved VictusX icon asset, signing/checksum evidence is incomplete, and clean-machine validation has not been run against a package candidate.
 
 Recurring `NU1900` audit-source warnings also remain open until package vulnerability audit retrieval is verified or separately dispositioned.
 
@@ -109,4 +108,4 @@ Normal/user-facing fan control also remains NO-GO and must not be presented as p
 
 ## Recommended Next Safe Task
 
-Resolve or remove the Microsoft.Management.Infrastructure.Runtime.Win dependency for distribution, then assemble the required license/notice files and compare them with a future final artifact. Keep preview publishing blocked until those checks pass.
+Assemble the required license/notice files and compare them with a future final artifact, including an explicit check that MMI runtime files are absent. Keep preview publishing blocked until those checks pass.

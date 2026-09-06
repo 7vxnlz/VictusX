@@ -33,10 +33,7 @@ public static class HpDiagnosticDashboardFormatter
             ClassifyAvailability(
                 input.RootWmiReadiness,
                 input.HpqBIntMReadiness,
-                input.HpqBDataInReadiness,
-                input.CimRootWmiReadiness,
-                input.CimHpqBIntMReadiness,
-                input.CimMethodMetadataReadiness),
+                input.HpqBDataInReadiness),
             ClassifyAvailability(input.SystemDesignDataDecodeStatus, input.SoftwareFanControlSupport),
             ClassifyAvailability(input.FanCount, input.MaxFanState, input.Fan1RawLevel, input.Fan2RawLevel),
             SetFanMaxStatus);
@@ -45,7 +42,7 @@ public static class HpDiagnosticDashboardFormatter
     public static string FormatHealthSummary(HpDiagnosticDashboardHealthSummary summary)
     {
         return "Health: Device " + summary.DeviceStatus +
-            " | WMI/CIM " + summary.WmiCimStatus +
+            " | WMI " + summary.WmiStatus +
             " | Telemetry " + summary.ReadOnlyTelemetryStatus +
             " | Fan read-only " + summary.FanReadOnlyStatus +
             " | Fan control " + summary.FanControlStatus;
@@ -72,14 +69,11 @@ public static class HpDiagnosticDashboardFormatter
                 Row("SKU", input.Sku),
                 Row("BIOS version", input.BiosVersion)
             ]),
-            new("WMI/CIM readiness",
+            new("WMI readiness",
             [
                 Row(@"root\wmi", input.RootWmiReadiness),
                 Row("hpqBIntM", input.HpqBIntMReadiness),
-                Row("hpqBDataIn", input.HpqBDataInReadiness),
-                Row(@"CIM root\wmi", input.CimRootWmiReadiness),
-                Row("CIM hpqBIntM", input.CimHpqBIntMReadiness),
-                Row("CIM method metadata", input.CimMethodMetadataReadiness)
+                Row("hpqBDataIn", input.HpqBDataInReadiness)
             ]),
             new("Read-only telemetry",
             [
@@ -189,13 +183,6 @@ public static class HpDiagnosticDashboardFormatter
                 .SelectMany(section => section.Rows)
                 .Select(row => row.Label + ": " + row.Value));
     }
-
-    public static string FormatCimReadiness(bool? value) => value switch
-    {
-        true => "Ready",
-        false => NotAvailable,
-        _ => NotAvailable
-    };
 
     public static string FormatWriteImplementationStatus(bool? value) => value switch
     {

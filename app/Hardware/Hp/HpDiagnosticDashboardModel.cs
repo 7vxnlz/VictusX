@@ -19,7 +19,7 @@ public sealed record HpDiagnosticDashboardSection(
 
 public sealed record HpDiagnosticDashboardHealthSummary(
     string DeviceStatus,
-    string WmiCimStatus,
+    string WmiStatus,
     string ReadOnlyTelemetryStatus,
     string FanReadOnlyStatus,
     string FanControlStatus);
@@ -39,9 +39,6 @@ public sealed record HpDiagnosticDashboardInput
     public string? RootWmiReadiness { get; init; }
     public string? HpqBIntMReadiness { get; init; }
     public string? HpqBDataInReadiness { get; init; }
-    public string? CimRootWmiReadiness { get; init; }
-    public string? CimHpqBIntMReadiness { get; init; }
-    public string? CimMethodMetadataReadiness { get; init; }
     public string? SystemDesignDataDecodeStatus { get; init; }
     public string? SoftwareFanControlSupport { get; init; }
     public string? FanCount { get; init; }

@@ -8,7 +8,7 @@ The follow-up CPU-only review found no trustworthy CPU-package source already wi
 
 | Candidate | Evidence and disposition |
 | --- | --- |
-| Windows WMI/CIM | Existing System.Management/Microsoft.Management.Infrastructure packages provide query transport, not proof of sensor identity. MSAcpi_ThermalZoneTemperature describes a thermal zone; no exact-target CPU-package mapping is recorded. Rejected for CPU labeling. |
+| Windows WMI | Existing `System.Management` queries provide transport, not proof of sensor identity. `MSAcpi_ThermalZoneTemperature` describes a thermal zone; no exact-target CPU-package mapping is recorded. Rejected for CPU labeling. |
 | PerformanceCounter | Inherited HardwareControl.GetCPUTemp reads Thermal Zone Information/Temperature for `\\_TZ.THRM`; the instance name and Kelvin conversion do not prove CPU-package identity. CPU utilization counters are not temperature sensors. |
 | Inherited sensor code | HardwareControl.GetCPUTemp additionally uses ASUS ACPI; GetCPUTempWMI selects the Qualcomm `ACPI\\QCOM0C5A\\1_0` instance. Neither is an established source for this AMD Victus. These helpers remain outside the HP telemetry path. |
 | HP BIOS selector | omencore HpWmiBios.GetTemperature (same revision listed below) reads 0x23 with `[01,00,00,00]`, accepts byte zero in 1..109, and labels it CPU. The [existing thermal investigation](hp-temperature-readonly-investigation.md) records contradictory ambient/board labels in other references. Numeric plausibility does not resolve that conflict for F.31. No new BIOS query is implemented or invoked. |

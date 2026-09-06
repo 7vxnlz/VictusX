@@ -5,6 +5,23 @@ namespace VictusX.Tests.Hardware.Hp;
 public sealed class HpDiagnosticPreviewConfigurationTests
 {
     [Fact]
+    public void HpReadOnlyDiscovery_DoesNotDependOnRestrictedMmiRuntime()
+    {
+        string project = ReadRepositoryFile("app", "VictusX.csproj");
+        string capabilityProbe = ReadRepositoryFile("app", "Hardware", "Hp", "HpVictusCapabilityProbe.cs");
+        string wmiClient = ReadRepositoryFile("app", "Hardware", "Hp", "HpWmiReadOnlyClient.cs");
+        string accessDiagnostics = ReadRepositoryFile("app", "Hardware", "Hp", "HpWmiAccessDeniedDiagnostics.cs");
+
+        Assert.DoesNotContain("Microsoft.Management.Infrastructure", project, StringComparison.Ordinal);
+        Assert.Contains("System.Management", project, StringComparison.Ordinal);
+        Assert.DoesNotContain("HpCimReadinessProbe", capabilityProbe, StringComparison.Ordinal);
+        Assert.Contains("new HpWmiReadOnlyClient().Probe()", capabilityProbe, StringComparison.Ordinal);
+        Assert.Contains("HpWmiAccessDeniedDiagnostics.Probe()", capabilityProbe, StringComparison.Ordinal);
+        Assert.DoesNotContain("Microsoft.Management.Infrastructure", capabilityProbe + wmiClient + accessDiagnostics, StringComparison.Ordinal);
+        Assert.Contains("ManagementClass", wmiClient + accessDiagnostics, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Launcher_UsesOnlyTheSafeHpVictusArgument()
     {
         string launcher = ReadRepositoryFile("tools", "run-victusx-hp-diagnostic.ps1");
