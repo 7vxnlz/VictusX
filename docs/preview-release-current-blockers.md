@@ -22,7 +22,7 @@ This is a concise current snapshot for the VictusX HP Diagnostic preview. It doe
 | Runtime dependency license review | Done | Source-level identity/version/license evidence is recorded for all seven direct packages and the one transitive package in the current restore graph. Artifact presence remains a separate final inspection step. | [Runtime dependency review](runtime-dependency-license-review.md) |
 | MMI runtime release disposition | Done | The sole MMI use was a duplicate read-only readiness probe. It and the direct package reference were removed; restored assets contain no MMI package. Final artifact inspection must confirm absence. | [Runtime dependency review](runtime-dependency-license-review.md) |
 | `THIRD-PARTY-NOTICES.md` release readiness | Blocked | The source-level draft records evidenced licenses, but required MIT, Apache-2.0/NOTICE, and LGPL-3.0/GPL-3.0 materials, icon attribution, and final artifact matching remain open. | [Third-Party Notices draft](../THIRD-PARTY-NOTICES.md) |
-| `NU1900` disposition | Pending | Build/test warnings are currently non-fatal, but vulnerability-audit confidence remains incomplete. Need clean restore/build/test plus vulnerability-list evidence, or documented maintainer alternate review. | [NU1900 checkpoint](nu1900-warning-checkpoint.md) |
+| `NU1900` disposition | Done for current source | Network-capable restore retrieved NuGet's vulnerability index/base/update data; both project graphs reported no vulnerable packages, and restore/build/test completed without `NU1900`. Repeat against the exact release candidate. | [NU1900 checkpoint](nu1900-warning-checkpoint.md) |
 | Signing/checksum evidence | Blocked | No final artifact exists, nothing is signed, and no final SHA-256 checksums exist. Evidence must identify artifact, version, commit, signing status, hash, reviewer/date, and validation linkage. | [Signing/checksum evidence plan](signing-checksum-evidence-plan.md) |
 | Clean-machine validation | Blocked | No final package has been validated on a clean Windows machine/VM. Requires artifact-specific launch, UI, no-control, Quit/process, path, crash, and reviewer/date evidence. | [Clean-machine evidence plan](clean-machine-validation-evidence-plan.md) |
 | Final package contents inspection | Blocked | No artifact exists to inspect. Future inspection must verify executable identity, final icon, expected runtime files, notices/license, launcher arguments, absence of test/source/reference artifacts, absence of developer-only logs/device captures, and signing/checksum evidence. | [Package contents inspection](preview-package-contents-inspection.md), [Packaging readiness audit](windows-packaging-readiness-audit.md) |
@@ -35,7 +35,6 @@ This is a concise current snapshot for the VictusX HP Diagnostic preview. It doe
 - Reviewed final icon asset at `app/Assets/VictusX.ico`.
 - Required package license and third-party notice texts assembled for distribution.
 - `THIRD-PARTY-NOTICES.md` promoted from draft to reviewed release evidence.
-- `NU1900` warning disposition evidence.
 - Final signing decision and SHA-256 checksum evidence.
 - Clean-machine validation against the exact package candidate.
 - Final package contents inspection.
