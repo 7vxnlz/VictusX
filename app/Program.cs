@@ -938,7 +938,7 @@ namespace GHelper
         {
             if (!AppConfig.IsHpVictusHardwareMode()) return Properties.Resources.standard;
 
-            return GetHpTrayIcon(Modes.GetCurrentBase());
+            return GetHpTrayIcon(HpPerformanceModeStatus.CurrentBaseMode);
         }
 
         internal static Icon GetHpTrayIcon(int basePerformanceMode)

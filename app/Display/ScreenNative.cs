@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using GHelper.Hardware.Hp;
 
 namespace GHelper.Display
 {
@@ -8,6 +9,7 @@ namespace GHelper.Display
     {
         public const int ENUM_CURRENT_SETTINGS = -1;
         public const string DefaultDevice = @"\\.\DISPLAY1";
+        private const int DM_DISPLAYFREQUENCY = 0x00400000;
 
         /// <summary>
         /// Returns true if at least one active display is not the built-in internal panel.
@@ -136,6 +138,94 @@ namespace GHelper.Display
             }
         }
 
+        public static string? FindUniqueHardwareInternalScreen(bool log = false)
+        {
+            try
+            {
+                var err = DisplayNative.GetDisplayConfigBufferSizes(
+                    DisplayNative.QUERY_DEVICE_CONFIG_FLAGS.QDC_ONLY_ACTIVE_PATHS, out uint pathCount, out uint modeCount);
+                if (err != 0) throw new Win32Exception(err);
+
+                var paths = new DisplayNative.DISPLAYCONFIG_PATH_INFO[pathCount];
+                var modes = new DisplayNative.DISPLAYCONFIG_MODE_INFO[modeCount];
+                err = DisplayNative.QueryDisplayConfig(
+                    DisplayNative.QUERY_DEVICE_CONFIG_FLAGS.QDC_ONLY_ACTIVE_PATHS,
+                    ref pathCount, paths, ref modeCount, modes, nint.Zero);
+                if (err != 0) throw new Win32Exception(err);
+
+                var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var path in paths)
+                {
+                    var targetName = new DisplayNative.DISPLAYCONFIG_TARGET_DEVICE_NAME();
+                    targetName.header.type = DisplayNative.DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
+                    targetName.header.size = (uint)Marshal.SizeOf(targetName);
+                    targetName.header.adapterId = path.targetInfo.adapterId;
+                    targetName.header.id = path.targetInfo.id;
+                    if (DisplayNative.DisplayConfigGetDeviceInfo(ref targetName) != 0) continue;
+                    if (targetName.outputTechnology is not (
+                        DisplayNative.DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY.DISPLAYCONFIG_OUTPUT_TECHNOLOGY_INTERNAL or
+                        DisplayNative.DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY.DISPLAYCONFIG_OUTPUT_TECHNOLOGY_DISPLAYPORT_EMBEDDED)) continue;
+
+                    var sourceName = new DisplayNative.DISPLAYCONFIG_SOURCE_DEVICE_NAME();
+                    sourceName.header.type = DisplayNative.DISPLAYCONFIG_DEVICE_INFO_TYPE.DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
+                    sourceName.header.size = (uint)Marshal.SizeOf(sourceName);
+                    sourceName.header.adapterId = path.sourceInfo.adapterId;
+                    sourceName.header.id = path.sourceInfo.id;
+                    if (DisplayNative.DisplayConfigGetDeviceInfo(ref sourceName) == 0)
+                        names.Add(ExtractDisplay(sourceName.viewGdiDeviceName));
+                }
+
+                if (names.Count == 1) return names.Single();
+                if (log) Logger.WriteLine($"Expected one active hardware-internal display, found {names.Count}.");
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine(ex.Message);
+            }
+
+            return null;
+        }
+
+        public static HpDisplayMode? GetDisplayMode(string? displayName)
+        {
+            if (displayName is null) return null;
+            var dm = CreateDevmode();
+            return DisplayNative.EnumDisplaySettingsEx(displayName, ENUM_CURRENT_SETTINGS, ref dm) != 0
+                ? ToHpDisplayMode(dm)
+                : null;
+        }
+
+        public static IReadOnlyList<HpDisplayMode> GetDisplayModes(string? displayName)
+        {
+            if (displayName is null) return Array.Empty<HpDisplayMode>();
+            var modes = new List<HpDisplayMode>();
+            for (int index = 0; ; index++)
+            {
+                var dm = CreateDevmode();
+                if (DisplayNative.EnumDisplaySettingsEx(displayName, index, ref dm) == 0) break;
+                modes.Add(ToHpDisplayMode(dm));
+            }
+            return modes;
+        }
+
+        public static int SetRefreshRateValidated(string displayName, int frequency)
+        {
+            var dm = CreateDevmode();
+            if (DisplayNative.EnumDisplaySettingsEx(displayName, ENUM_CURRENT_SETTINGS, ref dm) == 0) return -1;
+            if (dm.dmDisplayFrequency == frequency) return 0;
+
+            dm.dmDisplayFrequency = frequency;
+            dm.dmFields = DM_DISPLAYFREQUENCY;
+            int test = DisplayNative.ChangeDisplaySettingsEx(
+                displayName, ref dm, IntPtr.Zero, DisplayNative.DisplaySettingsFlags.CDS_TEST, IntPtr.Zero);
+            if (test != 0) return test;
+
+            int result = DisplayNative.ChangeDisplaySettingsEx(
+                displayName, ref dm, IntPtr.Zero, DisplayNative.DisplaySettingsFlags.CDS_UPDATEREGISTRY, IntPtr.Zero);
+            Logger.WriteLine("HP internal display = " + frequency + "Hz : " + (result == 0 ? "OK" : result));
+            return result;
+        }
+
         public static int GetMaxRefreshRate(string? laptopScreen)
         {
             if (laptopScreen is null) return -1;
@@ -188,6 +278,13 @@ namespace GHelper.Display
             dm.dmSize = (short)Marshal.SizeOf(dm);
             return dm;
         }
+
+        private static HpDisplayMode ToHpDisplayMode(DisplayNative.DEVMODE mode) => new(
+            mode.dmPelsWidth,
+            mode.dmPelsHeight,
+            mode.dmBitsPerPel,
+            mode.dmDisplayOrientation,
+            mode.dmDisplayFrequency);
 
         private static string ExtractDisplay(string input)
         {

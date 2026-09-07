@@ -44,6 +44,8 @@ namespace GHelper
         HpReadOnlyTelemetrySnapshot hpLiveTelemetry = HpReadOnlyTelemetrySnapshot.Unavailable;
         System.Windows.Forms.Timer? hpLiveTelemetryTimer;
         Label? hpLiveTelemetrySummary;
+        ContextMenuStrip? hpRefreshRateMenu;
+        HpDisplayRefreshRateState hpDisplayRefreshRateState = HpDisplayRefreshRateState.Unavailable;
 
         public GPUModeControl gpuControl;
         public AllyControl allyControl;
@@ -404,7 +406,38 @@ namespace GHelper
             labelCharge.Text = "Battery charge limit: Read-only";
 
             hpMainShellPanel = panelPerformance;
+            ConfigureHpRefreshRateControl();
             AddHpDiagnosticFooterAction();
+        }
+
+        private void ConfigureHpRefreshRateControl()
+        {
+            buttonScreenAuto.Click -= ButtonScreenAuto_Click;
+            buttonScreenAuto.Click += ButtonHpRefreshRate_Click;
+            buttonScreenAuto.Text = "Refresh rate: Unavailable";
+            buttonScreenAuto.AccessibleName = "Internal display refresh rate";
+            buttonScreenAuto.AccessibleDescription = "Windows-native refresh-rate selection for the uniquely identified internal display.";
+            buttonScreenAuto.Enabled = false;
+            buttonScreenAuto.TabStop = false;
+            buttonScreenAuto.Activated = false;
+
+            foreach (RButton button in new[] { button60Hz, button120Hz, buttonMiniled })
+            {
+                button.Visible = false;
+                button.TabStop = false;
+            }
+            tableScreen.SetColumn(buttonScreenAuto, 0);
+            tableScreen.SetColumnSpan(buttonScreenAuto, 4);
+
+            hpRefreshRateMenu = new CustomContextMenu
+            {
+                BackColor = formBack,
+                ForeColor = foreMain,
+                Renderer = new CustomMenuRenderer(),
+                ShowCheckMargin = true,
+                ShowImageMargin = false
+            };
+            RefreshHpRefreshRateState();
         }
 
         private void AddHpDiagnosticFooterAction()
@@ -503,10 +536,26 @@ namespace GHelper
             labelBacklight.Text = keyboard.DisplayText;
             labelGPU.Text = gpuMode.DisplayText;
             labelSreen.Text = display.Display;
+            if (hpRefreshRateMenu is not null)
+            {
+                int? currentRate = hpLiveTelemetry.DisplayRefreshRateHz;
+                buttonScreenAuto.Text = currentRate is { } hz ? $"Refresh rate: {hz}Hz" : "Refresh rate: Unavailable";
+                buttonScreenAuto.Activated = currentRate is not null && hpDisplayRefreshRateState.IsAvailable;
+            }
+            labelPerf.Text = HpPerformanceModeStatus.DisplayText;
+            panelPerformance.AccessibleName = HpPerformanceModeStatus.DisplayText;
+            foreach (RButton button in new[] { buttonSilent, buttonBalanced, buttonTurbo })
+            {
+                button.Enabled = false;
+                button.Activated = false;
+                button.AccessibleDescription = HpPerformanceModeStatus.Blocker;
+                toolTip.SetToolTip(button, HpPerformanceModeStatus.Blocker);
+            }
+            VisualiseIcon();
             panelScreen.AccessibleName = display.Display;
             if (hpLiveTelemetrySummary is not null)
                 hpLiveTelemetrySummary.Text = display.Summary + Environment.NewLine + keyboard.EvidenceText +
-                    Environment.NewLine + gpuMode.EvidenceText;
+                    Environment.NewLine + gpuMode.EvidenceText + Environment.NewLine + HpPerformanceModeStatus.Blocker;
         }
 
         private static byte? GetHpGpuModeSwitchRaw(
@@ -522,9 +571,74 @@ namespace GHelper
 
         private static int? ReadHpDisplayRefreshRate()
         {
-            string? laptopScreen = ScreenNative.FindLaptopScreen(rememberInternalDisplay: false);
+            string? laptopScreen = ScreenNative.FindUniqueHardwareInternalScreen();
             int refreshRate = ScreenNative.GetRefreshRate(laptopScreen);
             return refreshRate > 0 ? refreshRate : null;
+        }
+
+        private void RefreshHpRefreshRateState()
+        {
+            string? displayName = ScreenNative.FindUniqueHardwareInternalScreen();
+            hpDisplayRefreshRateState = HpDisplayRefreshRateControl.BuildState(
+                ScreenNative.GetDisplayMode(displayName),
+                ScreenNative.GetDisplayModes(displayName));
+            buttonScreenAuto.Enabled = hpDisplayRefreshRateState.IsAvailable;
+            buttonScreenAuto.TabStop = hpDisplayRefreshRateState.IsAvailable;
+            toolTip.SetToolTip(buttonScreenAuto, hpDisplayRefreshRateState.IsAvailable
+                ? "Select a Windows-reported refresh rate for the current internal-panel resolution."
+                : "Internal display refresh-rate switching is unavailable.");
+        }
+
+        private void ButtonHpRefreshRate_Click(object? sender, EventArgs e)
+        {
+            if (!AppConfig.IsHpVictusHardwareMode() || hpRefreshRateMenu is null) return;
+            RefreshHpRefreshRateState();
+            if (!hpDisplayRefreshRateState.IsAvailable) return;
+
+            foreach (ToolStripItem item in hpRefreshRateMenu.Items.Cast<ToolStripItem>().ToList()) item.Dispose();
+            hpRefreshRateMenu.Items.Clear();
+            foreach (int rate in hpDisplayRefreshRateState.SupportedRates)
+            {
+                var item = new ToolStripMenuItem($"{rate}Hz")
+                {
+                    Checked = rate == hpDisplayRefreshRateState.CurrentRateHz,
+                    Tag = rate
+                };
+                item.Click += ButtonHpRefreshRateMenuItem_Click;
+                hpRefreshRateMenu.Items.Add(item);
+            }
+            hpRefreshRateMenu.Show(buttonScreenAuto, new Point(0, buttonScreenAuto.Height));
+        }
+
+        private void ButtonHpRefreshRateMenuItem_Click(object? sender, EventArgs e)
+        {
+            if (!AppConfig.IsHpVictusHardwareMode() || sender is not ToolStripMenuItem { Tag: int requestedRate }) return;
+
+            HpDisplayRefreshRateApplyResult result;
+            try
+            {
+                string? displayName = ScreenNative.FindUniqueHardwareInternalScreen();
+                hpDisplayRefreshRateState = HpDisplayRefreshRateControl.BuildState(
+                    ScreenNative.GetDisplayMode(displayName),
+                    ScreenNative.GetDisplayModes(displayName));
+                result = displayName is null
+                    ? new(false, hpDisplayRefreshRateState.CurrentRateHz, "The internal display could not be uniquely identified.")
+                    : HpDisplayRefreshRateControl.Apply(
+                        hpDisplayRefreshRateState,
+                        requestedRate,
+                        rate => ScreenNative.SetRefreshRateValidated(displayName, rate),
+                        () => ScreenNative.GetDisplayMode(displayName)?.RefreshRateHz);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine("HP refresh-rate change failed: " + ex.Message);
+                result = new(false, hpDisplayRefreshRateState.CurrentRateHz, "Windows could not apply the refresh-rate change.");
+            }
+
+            RefreshHpRefreshRateState();
+            RefreshHpLiveTelemetry();
+            if (!result.Succeeded)
+                MessageBox.Show(this, result.Message, "VictusX Display", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ConfigureHpReadOnlySection(Control parent)
@@ -2870,7 +2984,7 @@ namespace GHelper
             if (Program.trayIcon is null) return;
             if (AppConfig.IsHpVictusHardwareMode())
             {
-                int basePerformanceMode = Modes.GetCurrentBase();
+                int basePerformanceMode = HpPerformanceModeStatus.CurrentBaseMode;
                 HpTrayIconKind iconKind = HpTrayIconSelector.Select(basePerformanceMode);
                 if (lastHpTrayIcon == iconKind) return;
                 lastHpTrayIcon = iconKind;

@@ -4,7 +4,7 @@
 
 - `app/VictusX.csproj` uses `app/Assets/VictusX.ico` unconditionally as `ApplicationIcon`, fixing executable, window, taskbar, Explorer, and Alt-Tab identity to VictusX.
 - All four VictusX icons are embedded as named managed resources for reliable tray loading.
-- In HP mode, `Program.GetTrayIcon()` selects from the inherited base performance-mode state through `HpTrayIconSelector`:
+- In HP mode, `Program.GetTrayIcon()` selects through `HpTrayIconSelector`. Current HP mode is unverified, so the base icon is used; the available routing for future verified state is:
   - Silent -> `VictusX.Silent.ico`
   - Balanced -> `VictusX.Balanced.ico`
   - Turbo/Performance -> `VictusX.Turbo.ico`
@@ -31,6 +31,6 @@ The built executable exposes an associated application icon, and the built assem
 
 ## Boundaries
 
-The selector reads only `Modes.GetCurrentBase()`. It adds no mode detection, mode writes, WMI/BIOS access, or hardware behavior. Inherited GPU-mode icon replacement remains isolated to non-HP mode.
+The HP caller uses `HpPerformanceModeStatus.CurrentBaseMode` (unknown), not saved `Modes.GetCurrentBase()` configuration. It adds no mode detection, mode writes, WMI/BIOS access, or hardware behavior. Inherited GPU-mode icon replacement remains isolated to non-HP mode. See [performance evidence](hp-performance-mode-evidence.md).
 
 The files were supplied as the final VictusX asset set; no artwork was generated or modified. Technical source integration is complete. Final package inspection must still match these hashes and confirm the project owner's provenance/license statement and any required attribution before release.

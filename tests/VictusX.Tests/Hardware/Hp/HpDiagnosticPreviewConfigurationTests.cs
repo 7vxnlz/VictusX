@@ -293,7 +293,7 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("GetSystemPowerStatus", source, StringComparison.Ordinal);
 
         string settings = ReadRepositoryFile("app", "Settings.cs");
-        Assert.Contains("ScreenNative.FindLaptopScreen(rememberInternalDisplay: false)", settings, StringComparison.Ordinal);
+        Assert.Contains("ScreenNative.FindUniqueHardwareInternalScreen()", settings, StringComparison.Ordinal);
         Assert.Contains("ScreenNative.GetRefreshRate(laptopScreen)", settings, StringComparison.Ordinal);
         int refreshReaderStart = settings.IndexOf("private static int? ReadHpDisplayRefreshRate", StringComparison.Ordinal);
         int refreshReaderEnd = settings.IndexOf("private void ConfigureHpReadOnlySection", refreshReaderStart, StringComparison.Ordinal);
@@ -307,6 +307,30 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("labelBattery.Click -= LabelBattery_Click;", settings, StringComparison.Ordinal);
         Assert.Contains("label.AccessibleRole = AccessibleRole.StaticText;", settings, StringComparison.Ordinal);
         Assert.Contains("if (AppConfig.IsHpVictusHardwareMode()) return;", settings, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HpRefreshRateControl_UsesOnlyTheUniqueInternalDisplayAndWindowsApi()
+    {
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+        string native = ReadRepositoryFile("app", "Display", "ScreenNative.cs");
+        string control = ReadRepositoryFile("app", "Hardware", "Hp", "HpDisplayRefreshRateControl.cs");
+
+        Assert.Contains("ScreenNative.FindUniqueHardwareInternalScreen()", settings);
+        Assert.Contains("ScreenNative.GetDisplayModes(displayName)", settings);
+        Assert.Contains("ScreenNative.SetRefreshRateValidated(displayName, rate)", settings);
+        Assert.Contains("tableScreen.SetColumnSpan(buttonScreenAuto, 4);", settings);
+        Assert.Contains("button60Hz, button120Hz, buttonMiniled", settings);
+        Assert.Contains("buttonScreenAuto.Click -= ButtonScreenAuto_Click;", settings);
+        Assert.Contains("DisplaySettingsFlags.CDS_TEST", native);
+        Assert.Contains("dm.dmFields = DM_DISPLAYFREQUENCY;", native);
+        Assert.Contains("DISPLAYCONFIG_OUTPUT_TECHNOLOGY_INTERNAL", native);
+        Assert.Contains("DISPLAYCONFIG_OUTPUT_TECHNOLOGY_DISPLAYPORT_EMBEDDED", native);
+        foreach (string forbidden in new[] { "hpqBIOSInt", "SetFan", "PawnIO", "AsusACPI", "DeviceSet", "0x37" })
+        {
+            Assert.DoesNotContain(forbidden, control);
+            Assert.DoesNotContain(forbidden, native);
+        }
     }
 
     [Fact]
@@ -408,13 +432,27 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("GHelper.Assets.VictusX.Turbo.ico", project, StringComparison.Ordinal);
         Assert.Contains("Icon = GetTrayIcon(),", program, StringComparison.Ordinal);
         Assert.Contains("internal static Icon GetTrayIcon()", program, StringComparison.Ordinal);
-        Assert.Contains("return GetHpTrayIcon(Modes.GetCurrentBase());", program, StringComparison.Ordinal);
+        Assert.Contains("return GetHpTrayIcon(HpPerformanceModeStatus.CurrentBaseMode);", program, StringComparison.Ordinal);
         Assert.Contains("GetManifestResourceStream(resourceName)", program, StringComparison.Ordinal);
         Assert.Contains("Icon.ExtractAssociatedIcon(Application.ExecutablePath)", program, StringComparison.Ordinal);
         Assert.Contains("if (!AppConfig.IsHpVictusHardwareMode()) return Properties.Resources.standard;", program, StringComparison.Ordinal);
         Assert.Contains("if (AppConfig.IsHpVictusHardwareMode())", settings, StringComparison.Ordinal);
         Assert.Contains("Program.GetHpTrayIcon(basePerformanceMode)", settings, StringComparison.Ordinal);
         Assert.Contains("Icon newIcon = GPUMode switch", settings, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void HpPerformanceStatusCannotPromoteSavedConfigurationToHardwareState()
+    {
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+        string status = ReadRepositoryFile("app", "Hardware", "Hp", "HpPerformanceModeStatus.cs");
+        Assert.Contains("int basePerformanceMode = HpPerformanceModeStatus.CurrentBaseMode;", settings);
+        Assert.Contains("button.Activated = false;", settings);
+        Assert.Contains("button.Enabled = false;", settings);
+        Assert.Contains("button.AccessibleDescription = HpPerformanceModeStatus.Blocker;", settings);
+        Assert.Contains("labelPerf.Text = HpPerformanceModeStatus.DisplayText;", settings);
+        foreach (string forbidden in new[] { "hpqBIOSInt", "ManagementObject", "SetFan", "PawnIO", "0x37", "Modes.GetCurrentBase", "Action<", "Func<" })
+            Assert.DoesNotContain(forbidden, status);
     }
 
     [Fact]
