@@ -357,6 +357,11 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("contextMenuStrip.Items.Add(hpTrayModeStatusItem);", settings);
         Assert.Contains("Enabled = false", settings);
         Assert.Contains("UpdateHpTrayStatusItems();", settings);
+        Assert.Contains("labelCPUFan.Text = hpTrayTelemetryStatus.Cpu;", settings);
+        Assert.Contains("labelGPUFan.Text = hpTrayTelemetryStatus.Gpu;", settings);
+        Assert.Contains("labelBattery.Text = hpTrayTelemetryStatus.Battery;", settings);
+        Assert.Contains("labelSreen.Text = hpTrayTelemetryStatus.Screen;", settings);
+        Assert.Contains("labelPerf.Text = modeStatus;", settings);
         Assert.Contains("buttonScreenAuto.Text = \"Automatic\";", settings);
         Assert.Contains("buttonScreenAuto.Enabled = false;", settings);
         Assert.Contains("button60Hz.Tag = 60;", settings);
@@ -498,7 +503,8 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("button.Activated = false;", settings);
         Assert.Contains("button.Enabled = false;", settings);
         Assert.Contains("button.AccessibleDescription = HpPerformanceModeStatus.Blocker;", settings);
-        Assert.Contains("labelPerf.Text = HpPerformanceModeStatus.DisplayText;", settings);
+        Assert.Contains("string modeStatus = HpTrayIconSelector.FormatModeStatus(HpPerformanceModeStatus.CurrentBaseMode);", settings);
+        Assert.Contains("labelPerf.Text = modeStatus;", settings);
         foreach (string forbidden in new[] { "hpqBIOSInt", "ManagementObject", "SetFan", "PawnIO", "0x37", "Modes.GetCurrentBase", "Action<", "Func<" })
             Assert.DoesNotContain(forbidden, status);
     }

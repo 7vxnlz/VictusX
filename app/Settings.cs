@@ -552,18 +552,19 @@ namespace GHelper
             HpReadOnlyTelemetryDisplay display = HpReadOnlyTelemetryFormatter.Format(
                 hpLiveTelemetry, DateTimeOffset.UtcNow, detected, cachedIdentity);
             hpTrayTelemetryStatus = display.TrayStatus;
+            string modeStatus = HpTrayIconSelector.FormatModeStatus(HpPerformanceModeStatus.CurrentBaseMode);
             UpdateHpTrayStatusItems();
-            labelCPUFan.Text = display.Cpu;
-            labelGPUFan.Text = display.Gpu;
+            labelCPUFan.Text = hpTrayTelemetryStatus.Cpu;
+            labelGPUFan.Text = hpTrayTelemetryStatus.Gpu;
             labelTipGPU.Text = display.FanAndDevice;
-            labelBattery.Text = display.Battery;
+            labelBattery.Text = hpTrayTelemetryStatus.Battery;
             labelCharge.Text = display.BatteryCare;
             labelBacklight.Text = keyboard.DisplayText;
             labelGPU.Text = gpuMode.DisplayText;
-            labelSreen.Text = display.Display;
+            labelSreen.Text = hpTrayTelemetryStatus.Screen;
             UpdateHpRefreshRateButtons(hpLiveTelemetry.DisplayRefreshRateHz);
-            labelPerf.Text = HpPerformanceModeStatus.DisplayText;
-            panelPerformance.AccessibleName = HpPerformanceModeStatus.DisplayText;
+            labelPerf.Text = modeStatus;
+            panelPerformance.AccessibleName = modeStatus;
             foreach (RButton button in new[] { buttonSilent, buttonBalanced, buttonTurbo })
             {
                 button.Enabled = false;
