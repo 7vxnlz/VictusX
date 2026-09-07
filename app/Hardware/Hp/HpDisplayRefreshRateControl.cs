@@ -21,8 +21,20 @@ internal sealed record HpDisplayRefreshRateApplyResult(
     int? CurrentRateHz,
     string Message);
 
+internal sealed record HpDisplayRefreshRateMenuItem(
+    int RefreshRateHz,
+    string Text,
+    bool IsCurrent);
+
 internal static class HpDisplayRefreshRateControl
 {
+    internal static IReadOnlyList<HpDisplayRefreshRateMenuItem> BuildMenu(HpDisplayRefreshRateState state) =>
+        state.IsAvailable
+            ? state.SupportedRates
+                .Select(rate => new HpDisplayRefreshRateMenuItem(rate, $"{rate} Hz", rate == state.CurrentRateHz))
+                .ToArray()
+            : Array.Empty<HpDisplayRefreshRateMenuItem>();
+
     internal static HpDisplayRefreshRateState BuildState(
         HpDisplayMode? current,
         IEnumerable<HpDisplayMode> availableModes)

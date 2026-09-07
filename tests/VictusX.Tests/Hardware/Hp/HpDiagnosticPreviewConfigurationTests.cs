@@ -319,6 +319,13 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("ScreenNative.FindUniqueHardwareInternalScreen()", settings);
         Assert.Contains("ScreenNative.GetDisplayModes(displayName)", settings);
         Assert.Contains("ScreenNative.SetRefreshRateValidated(displayName, rate)", settings);
+        Assert.Contains("var refreshRate = new ToolStripMenuItem(\"Refresh Rate\")", settings);
+        Assert.Contains("HpDisplayRefreshRateControl.BuildMenu(hpDisplayRefreshRateState)", settings);
+        Assert.Contains("rate.Click += ButtonHpTrayRefreshRate_Click;", settings);
+        Assert.Contains("HpDisplayRefreshRateApplyResult result = ApplyHpRefreshRate(requestedRate);", settings);
+        Assert.Contains("BeginInvoke((Action)SetHpReadOnlyContextMenu);", settings);
+        Assert.Contains("RefreshHpLiveTelemetry(force: true);", settings);
+        Assert.Contains("var currentMode = Modes.GetCurrent();", settings);
         Assert.Contains("tableScreen.SetColumnSpan(buttonScreenAuto, 4);", settings);
         Assert.Contains("button60Hz, button120Hz, buttonMiniled", settings);
         Assert.Contains("buttonScreenAuto.Click -= ButtonScreenAuto_Click;", settings);

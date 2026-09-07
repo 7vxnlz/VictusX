@@ -34,6 +34,24 @@ public sealed class HpDisplayRefreshRateControlTests
     }
 
     [Fact]
+    public void BuildMenu_PopulatesValidatedRatesAndChecksOnlyCurrentRate()
+    {
+        var state = new HpDisplayRefreshRateState(120, [60, 120, 144]);
+
+        IReadOnlyList<HpDisplayRefreshRateMenuItem> menu = HpDisplayRefreshRateControl.BuildMenu(state);
+
+        Assert.Equal(["60 Hz", "120 Hz", "144 Hz"], menu.Select(item => item.Text));
+        Assert.Equal([false, true, false], menu.Select(item => item.IsCurrent));
+        Assert.Equal([60, 120, 144], menu.Select(item => item.RefreshRateHz));
+    }
+
+    [Fact]
+    public void BuildMenu_ReturnsNoActionsForUnavailableState()
+    {
+        Assert.Empty(HpDisplayRefreshRateControl.BuildMenu(HpDisplayRefreshRateState.Unavailable));
+    }
+
+    [Fact]
     public void Apply_RejectsUnsupportedRateWithoutCallingNativeApi()
     {
         var state = new HpDisplayRefreshRateState(60, [60, 144]);

@@ -6,7 +6,7 @@ Updated: 2026-09-07
 
 - Product: VictusX, a .NET 10 Windows utility currently targeting HP Victus 16-s0035nt / SKU `7Z5Z2EA#AB8` / BIOS `F.31` / Thermal Policy V1.
 - HP mode uses the compact inherited shell. Unsupported controls are visible but disabled/read-only. Diagnostic opens as a read-only owned side panel.
-- Status currently includes CPU load, battery/AC/charging, device detection, NVIDIA GPU temperature when NVAPI is available, named HP battery-care setting status when the read-only Instrumented BIOS inventory is accessible, exact-SKU keyboard-backlight capability evidence, and exact-device GPU-switch capability from cached SystemDesignData. HP mode also provides an explicit Windows-native refresh-rate selector only when one hardware-internal panel is identified and rates match its current resolution/bit depth/orientation; it has no vendor write path. Keyboard state/levels, numeric charge limits, and current GPU mode remain unavailable.
+- Status currently includes CPU load, battery/AC/charging, device detection, NVIDIA GPU temperature when NVAPI is available, named HP battery-care setting status when the read-only Instrumented BIOS inventory is accessible, exact-SKU keyboard-backlight capability evidence, and exact-device GPU-switch capability from cached SystemDesignData. HP mode provides Windows-native refresh-rate actions in the main shell and tray only when one hardware-internal panel is identified and rates match its current resolution/bit depth/orientation; both routes share one validated apply path and have no vendor write path. Keyboard state/levels, numeric charge limits, and current GPU mode remain unavailable.
 - CPU package temperature and V1 fan RPM remain unavailable. `FanGetLevel` is raw-only and must never be shown as RPM or percent. `FanMaxGet` is inconclusive.
 - Developer-only four-byte SetFanMax pulse/hold is operational behind explicit CLI gates. Hold seconds mean bounded pre-restore wait, not physical fan-duration control.
 - SetFanLevel percentage dry-run and first-write preflight are hardware/WMI-inert. First-write readiness is NO-GO; no value is selected.
@@ -23,7 +23,7 @@ Updated: 2026-09-07
 ## Verification Baseline
 
 - Branch: `main` tracking `origin/main`.
-- Last verified: `dotnet restore VictusX.sln` and `dotnet build VictusX.sln` passed with zero warnings; `dotnet test VictusX.sln` passed 398/398 after fail-closed HP performance-state wiring and Windows-native refresh-rate control tests. No hardware or real display-mode command was run. Prior built-output inspection found the associated executable icon and all four expected embedded VictusX icon resources.
+- Last verified: `dotnet build VictusX.sln` passed with zero warnings and `dotnet test VictusX.sln --no-build` passed 400/400 after adding HP tray refresh-rate actions through the existing validated Windows apply path. No hardware or real display-mode command was run. Prior built-output inspection found the associated executable icon and all four expected embedded VictusX icon resources.
 - NU1900 is not suppressed. Current-source audit evidence is cleared: a network-capable restore retrieved official NuGet vulnerability data, both project graphs reported no vulnerable packages, and required restore/build/test completed without NU1900. Repeat on the exact release candidate.
 
 ## Context Routing

@@ -505,9 +505,9 @@ namespace GHelper
             ApplyHpLiveTelemetry();
         }
 
-        private void RefreshHpLiveTelemetry()
+        private void RefreshHpLiveTelemetry(bool force = false)
         {
-            if (!AppConfig.IsHpVictusHardwareMode() || !Visible || IsDisposed || Disposing || hpLiveTelemetryProvider is null) return;
+            if (!AppConfig.IsHpVictusHardwareMode() || (!force && !Visible) || IsDisposed || Disposing || hpLiveTelemetryProvider is null) return;
             hpLiveTelemetry = hpLiveTelemetryProvider.Capture(DateTimeOffset.UtcNow);
             ApplyHpLiveTelemetry();
         }
@@ -613,7 +613,13 @@ namespace GHelper
         private void ButtonHpRefreshRateMenuItem_Click(object? sender, EventArgs e)
         {
             if (!AppConfig.IsHpVictusHardwareMode() || sender is not ToolStripMenuItem { Tag: int requestedRate }) return;
+            HpDisplayRefreshRateApplyResult result = ApplyHpRefreshRate(requestedRate);
+            if (!result.Succeeded)
+                MessageBox.Show(this, result.Message, "VictusX Display", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
 
+        private HpDisplayRefreshRateApplyResult ApplyHpRefreshRate(int requestedRate)
+        {
             HpDisplayRefreshRateApplyResult result;
             try
             {
@@ -636,9 +642,8 @@ namespace GHelper
             }
 
             RefreshHpRefreshRateState();
-            RefreshHpLiveTelemetry();
-            if (!result.Succeeded)
-                MessageBox.Show(this, result.Message, "VictusX Display", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            RefreshHpLiveTelemetry(force: true);
+            return result;
         }
 
         private void ConfigureHpReadOnlySection(Control parent)
@@ -1889,7 +1894,7 @@ namespace GHelper
             }
 
             contextMenuStrip.Items.Clear();
-            contextMenuStrip.ShowCheckMargin = false;
+            contextMenuStrip.ShowCheckMargin = true;
             contextMenuStrip.ShowImageMargin = false;
             contextMenuStrip.ImageScalingSize = new Size(16, 16);
 
@@ -1901,6 +1906,23 @@ namespace GHelper
             diagnostic.Click += (sender, args) => ShowHpReadOnlyDiagnostic();
             contextMenuStrip.Items.Add(diagnostic);
 
+            RefreshHpRefreshRateState();
+            var refreshRate = new ToolStripMenuItem("Refresh Rate")
+            {
+                Enabled = hpDisplayRefreshRateState.IsAvailable
+            };
+            foreach (HpDisplayRefreshRateMenuItem model in HpDisplayRefreshRateControl.BuildMenu(hpDisplayRefreshRateState))
+            {
+                var rate = new ToolStripMenuItem(model.Text)
+                {
+                    Checked = model.IsCurrent,
+                    Tag = model.RefreshRateHz
+                };
+                rate.Click += ButtonHpTrayRefreshRate_Click;
+                refreshRate.DropDownItems.Add(rate);
+            }
+            contextMenuStrip.Items.Add(refreshRate);
+
             var quit = new ToolStripMenuItem(Properties.Strings.Quit);
             quit.Click += ButtonQuit_Click;
             contextMenuStrip.Items.Add(quit);
@@ -1909,6 +1931,16 @@ namespace GHelper
             InitContextMenuTheme();
 
             if (Program.trayIcon is not null) Program.trayIcon.ContextMenuStrip = contextMenuStrip;
+        }
+
+        private void ButtonHpTrayRefreshRate_Click(object? sender, EventArgs e)
+        {
+            if (!AppConfig.IsHpVictusHardwareMode() || sender is not ToolStripMenuItem { Tag: int requestedRate }) return;
+
+            HpDisplayRefreshRateApplyResult result = ApplyHpRefreshRate(requestedRate);
+            BeginInvoke((Action)SetHpReadOnlyContextMenu);
+            if (!result.Succeeded)
+                MessageBox.Show(result.Message, "VictusX Display", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         public void InitContextMenuTheme()
