@@ -317,8 +317,10 @@ public sealed class HpReadOnlyTelemetryTests
 
         Assert.Equal(HpBatteryCareAvailability.Supported, result.Availability);
         Assert.Equal(expectedEnabled, result.Enabled);
-        Assert.Equal(expectedText, HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).BatteryCare.Replace("Battery care: ", ""));
-        Assert.Contains("numeric limits unavailable", HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).Summary);
+        HpReadOnlyTelemetryDisplay display = HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false);
+        Assert.Equal(expectedText, display.BatteryCare.Replace("Battery care: ", ""));
+        Assert.Equal(expectedEnabled.HasValue ? "Available" : "Supported, state unavailable", display.BatteryCareCapability);
+        Assert.Contains("numeric limits unavailable", display.Summary);
     }
 
     [Theory]
@@ -337,6 +339,8 @@ public sealed class HpReadOnlyTelemetryTests
         };
 
         Assert.Equal(expected, HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).BatteryCare);
+        Assert.Equal(availability == HpBatteryCareAvailability.NotExposed ? "Not supported" : "Unavailable",
+            HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).BatteryCareCapability);
     }
 
     private sealed class FakeSource : IHpReadOnlyTelemetrySource

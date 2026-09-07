@@ -15,6 +15,7 @@ public sealed class HpGpuModeReadOnlyStatusTests
         Assert.Null(status.CurrentMode);
         Assert.Equal((byte)6, status.CapabilityRaw);
         Assert.True(status.ModeChangeRequiresReboot);
+        Assert.Equal("Supported, state unavailable", status.CapabilityText);
         Assert.Equal("GPU Mode: Supported, state unavailable", status.DisplayText);
     }
 
@@ -25,6 +26,7 @@ public sealed class HpGpuModeReadOnlyStatusTests
             true, "HP Victus Gaming Laptop 16-s0035nt", "7Z5Z2EA#AB8", 0);
 
         Assert.Equal(HpGpuModeAvailability.NotSupported, status.Availability);
+        Assert.Equal("Not supported", status.CapabilityText);
         Assert.Equal("GPU Mode: Not supported", status.DisplayText);
         Assert.Null(status.CurrentMode);
     }
@@ -41,6 +43,7 @@ public sealed class HpGpuModeReadOnlyStatusTests
         HpGpuModeStatus status = HpGpuModeStatus.Resolve(detected, model, sku, raw);
 
         Assert.Equal(expected, status.DisplayText);
+        Assert.Equal(expected.Replace("GPU Mode: ", ""), status.CapabilityText);
         Assert.Null(status.CurrentMode);
     }
 

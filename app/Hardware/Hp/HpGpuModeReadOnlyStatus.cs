@@ -39,12 +39,14 @@ internal readonly record struct HpGpuModeStatus(
             : new(HpGpuModeAvailability.SupportedStateUnavailable, null, gpuModeSwitchRaw, true);
     }
 
-    public string DisplayText => Availability switch
+    public string CapabilityText => Availability switch
     {
-        HpGpuModeAvailability.SupportedStateUnavailable => "GPU Mode: Supported, state unavailable",
-        HpGpuModeAvailability.NotSupported => "GPU Mode: Not supported",
-        _ => "GPU Mode: Unavailable"
+        HpGpuModeAvailability.SupportedStateUnavailable => "Supported, state unavailable",
+        HpGpuModeAvailability.NotSupported => "Not supported",
+        _ => "Unavailable"
     };
+
+    public string DisplayText => $"GPU Mode: {CapabilityText}";
 
     public string EvidenceText => Availability switch
     {

@@ -228,11 +228,13 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("ConfigureHpReadOnlySection(section);", settings, StringComparison.Ordinal);
         Assert.Contains("control.ForeColor = foreMain;", settings, StringComparison.Ordinal);
         Assert.Contains("control is RButton or ComboBox or Slider or CheckBox or PictureBox", settings, StringComparison.Ordinal);
-        Assert.Contains("control.AccessibleDescription = \"Not supported yet in HP read-only mode.\";", settings, StringComparison.Ordinal);
-        Assert.Contains("toolTip.SetToolTip(control, \"Not supported yet in HP read-only mode.\");", settings, StringComparison.Ordinal);
-        Assert.Contains("labelGPU.Text = \"GPU Mode: Not supported yet\";", settings, StringComparison.Ordinal);
-        Assert.Contains("labelBacklight.Text = \"Keyboard lighting: Not supported yet\";", settings, StringComparison.Ordinal);
-        Assert.Contains("labelCharge.Text = \"Battery charge limit: Read-only\";", settings, StringComparison.Ordinal);
+        Assert.Contains("control.AccessibleDescription = \"Unavailable in HP mode.\";", settings, StringComparison.Ordinal);
+        Assert.Contains("toolTip.SetToolTip(control, \"Unavailable in HP mode.\");", settings, StringComparison.Ordinal);
+        Assert.Contains("labelGPU.Text = $\"GPU Mode: {gpuMode.CapabilityText}\";", settings, StringComparison.Ordinal);
+        Assert.Contains("labelBacklight.Text = $\"Keyboard Lighting: {keyboard.CapabilityText}\";", settings, StringComparison.Ordinal);
+        Assert.Contains("labelCharge.Text = $\"Battery Care: {display.BatteryCareCapability}\";", settings, StringComparison.Ordinal);
+        Assert.Contains("buttonFans.Text = \"Fan Control\\nNO-GO\";", settings, StringComparison.Ordinal);
+        Assert.Contains("buttonFans.AccessibleName = \"Fan Control: NO-GO\";", settings, StringComparison.Ordinal);
         Assert.Contains("buttonDonate.Text = AppConfig.IsHpVictusHardwareMode() ? \"Thank You\"", settings, StringComparison.Ordinal);
         Assert.Contains("buttonUpdates.Enabled = false;", settings, StringComparison.Ordinal);
         Assert.Contains("tableButtons.ColumnCount = 4;", settings, StringComparison.Ordinal);
@@ -411,7 +413,7 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("SELECT Name, CurrentValue FROM HP_BIOSSetting", source, StringComparison.Ordinal);
         Assert.Contains("Adaptive Battery Extender", source, StringComparison.Ordinal);
         Assert.Contains("Adaptive Battery Optimizer", source, StringComparison.Ordinal);
-        Assert.Contains("labelCharge.Text = display.BatteryCare;", settings, StringComparison.Ordinal);
+        Assert.Contains("labelCharge.Text = $\"Battery Care: {display.BatteryCareCapability}\";", settings, StringComparison.Ordinal);
         Assert.Contains("labelCharge,", settings, StringComparison.Ordinal);
         Assert.DoesNotContain("labelCharge.Enabled = true", settings, StringComparison.Ordinal);
 
@@ -433,7 +435,7 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("7Z5Z2EA", source, StringComparison.Ordinal);
         Assert.Contains("16-s0035", source, StringComparison.Ordinal);
         Assert.Contains("Supported, state unavailable", source, StringComparison.Ordinal);
-        Assert.Contains("labelBacklight.Text = keyboard.DisplayText;", settings, StringComparison.Ordinal);
+        Assert.Contains("labelBacklight.Text = $\"Keyboard Lighting: {keyboard.CapabilityText}\";", settings, StringComparison.Ordinal);
         Assert.Contains("labelBacklight,", settings, StringComparison.Ordinal);
         Assert.DoesNotContain("labelBacklight.Enabled = true", settings, StringComparison.Ordinal);
 
@@ -454,7 +456,7 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         string settings = ReadRepositoryFile("app", "Settings.cs");
 
         Assert.Contains("SystemDesignDataDecoded.GpuModeSwitchRaw", settings, StringComparison.Ordinal);
-        Assert.Contains("labelGPU.Text = gpuMode.DisplayText;", settings, StringComparison.Ordinal);
+        Assert.Contains("labelGPU.Text = $\"GPU Mode: {gpuMode.CapabilityText}\";", settings, StringComparison.Ordinal);
         Assert.Contains("panelGPU,", settings, StringComparison.Ordinal);
         Assert.DoesNotContain("labelGPU.Enabled = true", settings, StringComparison.Ordinal);
         Assert.DoesNotContain("buttonEco.Enabled = true", settings, StringComparison.Ordinal);

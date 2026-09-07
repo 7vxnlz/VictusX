@@ -407,9 +407,13 @@ namespace GHelper
             checkStartup.Visible = false;
             checkStartup.TabStop = false;
 
-            labelGPU.Text = "GPU Mode: Not supported yet";
-            labelBacklight.Text = "Keyboard lighting: Not supported yet";
-            labelCharge.Text = "Battery charge limit: Read-only";
+            labelGPU.Text = "GPU Mode: Unavailable";
+            labelBacklight.Text = "Keyboard Lighting: Unavailable";
+            labelCharge.Text = "Battery Care: Unavailable";
+            buttonFans.Text = "Fan Control\nNO-GO";
+            buttonFans.AccessibleName = "Fan Control: NO-GO";
+            buttonFans.AccessibleDescription = "Normal fan control: NO-GO.";
+            toolTip.SetToolTip(buttonFans, "Normal fan control: NO-GO.");
 
             hpMainShellPanel = panelPerformance;
             ConfigureHpRefreshRateControl();
@@ -558,9 +562,9 @@ namespace GHelper
             labelGPUFan.Text = hpTrayTelemetryStatus.Gpu;
             labelTipGPU.Text = display.FanAndDevice;
             labelBattery.Text = hpTrayTelemetryStatus.Battery;
-            labelCharge.Text = display.BatteryCare;
-            labelBacklight.Text = keyboard.DisplayText;
-            labelGPU.Text = gpuMode.DisplayText;
+            labelCharge.Text = $"Battery Care: {display.BatteryCareCapability}";
+            labelBacklight.Text = $"Keyboard Lighting: {keyboard.CapabilityText}";
+            labelGPU.Text = $"GPU Mode: {gpuMode.CapabilityText}";
             labelSreen.Text = hpTrayTelemetryStatus.Screen;
             UpdateHpRefreshRateButtons(hpLiveTelemetry.DisplayRefreshRateHz);
             labelPerf.Text = modeStatus;
@@ -588,28 +592,11 @@ namespace GHelper
                 RefreshRate = display.RefreshRate,
                 CpuTemperature = display.CpuTemperature,
                 FanRpm = display.FanRpm,
-                GpuModeCapability = RemoveHpStatusPrefix(gpuMode.DisplayText, "GPU Mode:"),
-                KeyboardBacklightCapability = RemoveHpStatusPrefix(keyboard.DisplayText, "Keyboard lighting:"),
-                BatteryCareCapability = FormatHpBatteryCareCapability(display.BatteryCareStatus),
+                GpuModeCapability = gpuMode.CapabilityText,
+                KeyboardBacklightCapability = keyboard.CapabilityText,
+                BatteryCareCapability = display.BatteryCareCapability,
                 FanControlStatus = "NO-GO"
             });
-        }
-
-        private static string RemoveHpStatusPrefix(string value, string prefix) =>
-            value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                ? value[prefix.Length..].Trim()
-                : value;
-
-        private static string FormatHpBatteryCareCapability(string value)
-        {
-            if (value.StartsWith("Enabled", StringComparison.OrdinalIgnoreCase) ||
-                value.StartsWith("Disabled", StringComparison.OrdinalIgnoreCase))
-                return "Available";
-            if (value.StartsWith("Supported", StringComparison.OrdinalIgnoreCase))
-                return "Supported, state unavailable";
-            if (value.StartsWith("Not exposed", StringComparison.OrdinalIgnoreCase))
-                return "Not supported";
-            return "Unavailable";
         }
 
         private static byte? GetHpGpuModeSwitchRaw(
@@ -703,8 +690,8 @@ namespace GHelper
                 {
                     control.Enabled = false;
                     control.TabStop = false;
-                    control.AccessibleDescription = "Not supported yet in HP read-only mode.";
-                    toolTip.SetToolTip(control, "Not supported yet in HP read-only mode.");
+                    control.AccessibleDescription = "Unavailable in HP mode.";
+                    toolTip.SetToolTip(control, "Unavailable in HP mode.");
                 }
 
                 ConfigureHpReadOnlySection(control);

@@ -12,6 +12,7 @@ internal sealed record HpReadOnlyTelemetryDisplay(
     internal string CpuTemperature { get; init; } = "Unavailable";
     internal string FanRpm { get; init; } = "Unavailable";
     internal string BatteryCareStatus { get; init; } = "Unavailable";
+    internal string BatteryCareCapability { get; init; } = "Unavailable";
 }
 
 internal sealed record HpTrayTelemetryStatus(string Cpu, string Gpu, string Battery, string Screen)
@@ -79,7 +80,8 @@ internal static class HpReadOnlyTelemetryFormatter
             RefreshRate = refreshRate,
             CpuTemperature = "Unavailable",
             FanRpm = "Unavailable",
-            BatteryCareStatus = batteryCare
+            BatteryCareStatus = batteryCare,
+            BatteryCareCapability = FormatBatteryCareCapability(current.BatteryCare?.Result)
         };
     }
 
@@ -101,6 +103,14 @@ internal static class HpReadOnlyTelemetryFormatter
         { Availability: HpBatteryCareAvailability.Supported, Enabled: false } => "Disabled; limit values unavailable",
         { Availability: HpBatteryCareAvailability.Supported } => "Supported, state unavailable",
         { Availability: HpBatteryCareAvailability.NotExposed } => "Not exposed by HP BIOS settings",
+        _ => "Unavailable"
+    };
+
+    internal static string FormatBatteryCareCapability(HpBatteryCareProbeResult? result) => result switch
+    {
+        { Availability: HpBatteryCareAvailability.Supported, Enabled: not null } => "Available",
+        { Availability: HpBatteryCareAvailability.Supported } => "Supported, state unavailable",
+        { Availability: HpBatteryCareAvailability.NotExposed } => "Not supported",
         _ => "Unavailable"
     };
 }
