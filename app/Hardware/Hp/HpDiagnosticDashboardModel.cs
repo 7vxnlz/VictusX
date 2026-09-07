@@ -17,6 +17,23 @@ public sealed record HpDiagnosticDashboardSection(
     string Title,
     IReadOnlyList<HpDiagnosticDashboardRow> Rows);
 
+public sealed record HpDiagnosticUserSummaryInput
+{
+    public string? DeviceIdentity { get; init; }
+    public string? BiosVersion { get; init; }
+    public string? TelemetryAvailability { get; init; }
+    public string? CpuLoad { get; init; }
+    public string? GpuTemperature { get; init; }
+    public string? BatteryPower { get; init; }
+    public string? RefreshRate { get; init; }
+    public string? CpuTemperature { get; init; }
+    public string? FanRpm { get; init; }
+    public string? GpuModeCapability { get; init; }
+    public string? KeyboardBacklightCapability { get; init; }
+    public string? BatteryCareCapability { get; init; }
+    public string? FanControlStatus { get; init; }
+}
+
 public sealed record HpDiagnosticDashboardHealthSummary(
     string DeviceStatus,
     string WmiStatus,

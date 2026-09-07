@@ -2,7 +2,17 @@ namespace GHelper.Hardware.Hp;
 
 internal sealed record HpReadOnlyTelemetryDisplay(
     string Cpu, string Gpu, string FanAndDevice, string Battery, string BatteryCare, string Display, string Summary,
-    HpTrayTelemetryStatus TrayStatus);
+    HpTrayTelemetryStatus TrayStatus)
+{
+    internal string Availability { get; init; } = "Unavailable";
+    internal string CpuLoad { get; init; } = "Unavailable";
+    internal string GpuTemperature { get; init; } = "Unavailable";
+    internal string BatteryPower { get; init; } = "Unavailable";
+    internal string RefreshRate { get; init; } = "Unavailable";
+    internal string CpuTemperature { get; init; } = "Unavailable";
+    internal string FanRpm { get; init; } = "Unavailable";
+    internal string BatteryCareStatus { get; init; } = "Unavailable";
+}
 
 internal sealed record HpTrayTelemetryStatus(string Cpu, string Gpu, string Battery, string Screen)
 {
@@ -60,7 +70,17 @@ internal static class HpReadOnlyTelemetryFormatter
         return new(
             $"Temp: Unavailable | {load}", $"Temp: {gpuTemperature}",
             $"Fan RPM: Unavailable | {device}" + (cachedIdentity ? " (cached)" : ""),
-            batteryStatus, $"Battery care: {batteryCare}", $"Screen: {refreshRate}", summary, trayStatus);
+            batteryStatus, $"Battery care: {batteryCare}", $"Screen: {refreshRate}", summary, trayStatus)
+        {
+            Availability = state,
+            CpuLoad = current.CpuLoadPercent is { } summaryCpuLoad ? $"{summaryCpuLoad}%" : "Unavailable",
+            GpuTemperature = gpuTemperature,
+            BatteryPower = batteryStatus,
+            RefreshRate = refreshRate,
+            CpuTemperature = "Unavailable",
+            FanRpm = "Unavailable",
+            BatteryCareStatus = batteryCare
+        };
     }
 
     private static string FormatTrayBattery(HpReadOnlyTelemetrySnapshot current)

@@ -206,6 +206,11 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("hpDiagnosticForm?.Hide();", settings, StringComparison.Ordinal);
         Assert.Contains("HpFanMaxPulseHistoryLoader.Load", settings, StringComparison.Ordinal);
         Assert.Contains("HpFanProofGapAnalyzer.Analyze", settings, StringComparison.Ordinal);
+        Assert.Contains("AccessibleName = \"User-facing diagnostic summary\"", settings, StringComparison.Ordinal);
+        Assert.Contains("Show Advanced / Developer diagnostics", settings, StringComparison.Ordinal);
+        Assert.Contains("Visible = false", settings, StringComparison.Ordinal);
+        Assert.Contains("advancedPanel.Controls.Add(details);", settings, StringComparison.Ordinal);
+        Assert.Contains("advancedPanel.Controls.Add(hpLiveTelemetrySummary);", settings, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -350,9 +355,19 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("foreach (string row in hpTrayTelemetryStatus.Rows)", settings);
         Assert.Contains("Enabled = false", settings);
         Assert.Contains("UpdateHpTrayStatusItems();", settings);
-        Assert.Contains("tableScreen.SetColumnSpan(buttonScreenAuto, 4);", settings);
-        Assert.Contains("button60Hz, button120Hz, buttonMiniled", settings);
+        Assert.Contains("buttonScreenAuto.Text = \"Automatic\";", settings);
+        Assert.Contains("buttonScreenAuto.Enabled = false;", settings);
+        Assert.Contains("button60Hz.Tag = 60;", settings);
+        Assert.Contains("button120Hz.Tag = 144;", settings);
+        Assert.Contains("button60Hz.Click += ButtonHpRefreshRate_Click;", settings);
+        Assert.Contains("button120Hz.Click += ButtonHpRefreshRate_Click;", settings);
+        Assert.Contains("tableScreen.ColumnCount = 3;", settings);
+        Assert.Contains("tableScreen.SetColumnSpan(buttonScreenAuto, 1);", settings);
+        Assert.Contains("button.Visible = hpDisplayRefreshRateState.SupportedRates.Contains(rate);", settings);
+        Assert.Contains("button.Activated = button.Visible && currentRateHz == rate;", settings);
         Assert.Contains("buttonScreenAuto.Click -= ButtonScreenAuto_Click;", settings);
+        Assert.Contains("button60Hz.Click -= Button60Hz_Click;", settings);
+        Assert.Contains("button120Hz.Click -= Button120Hz_Click;", settings);
         Assert.Contains("DisplaySettingsFlags.CDS_TEST", native);
         Assert.Contains("dm.dmFields = DM_DISPLAYFREQUENCY;", native);
         Assert.Contains("DISPLAYCONFIG_OUTPUT_TECHNOLOGY_INTERNAL", native);

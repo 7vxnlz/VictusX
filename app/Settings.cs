@@ -33,7 +33,11 @@ namespace GHelper
         RForm? hpDiagnosticForm;
         RButton? hpDiagnosticFooterButton;
         Panel? hpReadOnlyTelemetryPanel;
+        TableLayoutPanel? hpReadOnlyTelemetrySummary;
         TableLayoutPanel? hpReadOnlyTelemetryDetails;
+        Panel? hpReadOnlyTelemetryAdvanced;
+        RButton? hpReadOnlyTelemetryAdvancedToggle;
+        HpDiagnosticDashboardSection? hpLastUserDiagnosticSummary;
         Label? hpReadOnlyTelemetrySource;
         Label? hpReadOnlyTelemetryHealth;
         Label? hpReadOnlyTelemetryWarning;
@@ -44,7 +48,6 @@ namespace GHelper
         HpReadOnlyTelemetrySnapshot hpLiveTelemetry = HpReadOnlyTelemetrySnapshot.Unavailable;
         System.Windows.Forms.Timer? hpLiveTelemetryTimer;
         Label? hpLiveTelemetrySummary;
-        ContextMenuStrip? hpRefreshRateMenu;
         HpDisplayRefreshRateState hpDisplayRefreshRateState = HpDisplayRefreshRateState.Unavailable;
         readonly List<ToolStripMenuItem> hpTrayStatusItems = [];
         HpTrayTelemetryStatus hpTrayTelemetryStatus = HpTrayTelemetryStatus.Unavailable;
@@ -416,30 +419,46 @@ namespace GHelper
         private void ConfigureHpRefreshRateControl()
         {
             buttonScreenAuto.Click -= ButtonScreenAuto_Click;
-            buttonScreenAuto.Click += ButtonHpRefreshRate_Click;
-            buttonScreenAuto.Text = "Refresh rate: Unavailable";
-            buttonScreenAuto.AccessibleName = "Internal display refresh rate";
-            buttonScreenAuto.AccessibleDescription = "Windows-native refresh-rate selection for the uniquely identified internal display.";
+            button60Hz.Click -= Button60Hz_Click;
+            button120Hz.Click -= Button120Hz_Click;
+            buttonMiniled.Click -= ButtonMiniled_Click;
+
+            buttonScreenAuto.Text = "Automatic";
+            buttonScreenAuto.AccessibleName = "Automatic refresh rate unavailable";
+            buttonScreenAuto.AccessibleDescription = "Automatic refresh-rate switching is not available in HP mode.";
             buttonScreenAuto.Enabled = false;
             buttonScreenAuto.TabStop = false;
             buttonScreenAuto.Activated = false;
+            buttonScreenAuto.Visible = true;
+            toolTip.SetToolTip(buttonScreenAuto, "Automatic refresh-rate switching is unavailable in HP mode.");
 
-            foreach (RButton button in new[] { button60Hz, button120Hz, buttonMiniled })
+            button60Hz.Text = "60Hz";
+            button60Hz.Tag = 60;
+            button60Hz.Click += ButtonHpRefreshRate_Click;
+            button60Hz.AccessibleName = "Set internal display to 60Hz";
+
+            button120Hz.Text = "144Hz";
+            button120Hz.Tag = 144;
+            button120Hz.Click += ButtonHpRefreshRate_Click;
+            button120Hz.AccessibleName = "Set internal display to 144Hz";
+
+            foreach (RButton button in new[] { button60Hz, button120Hz })
             {
-                button.Visible = false;
+                button.Enabled = false;
                 button.TabStop = false;
+                button.Activated = false;
             }
-            tableScreen.SetColumn(buttonScreenAuto, 0);
-            tableScreen.SetColumnSpan(buttonScreenAuto, 4);
+            buttonMiniled.Visible = false;
+            buttonMiniled.TabStop = false;
 
-            hpRefreshRateMenu = new CustomContextMenu
-            {
-                BackColor = formBack,
-                ForeColor = foreMain,
-                Renderer = new CustomMenuRenderer(),
-                ShowCheckMargin = true,
-                ShowImageMargin = false
-            };
+            tableScreen.ColumnCount = 3;
+            tableScreen.ColumnStyles.Clear();
+            for (int column = 0; column < 3; column++)
+                tableScreen.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F / 3F));
+            tableScreen.SetColumn(buttonScreenAuto, 0);
+            tableScreen.SetColumnSpan(buttonScreenAuto, 1);
+            tableScreen.SetColumn(button60Hz, 1);
+            tableScreen.SetColumn(button120Hz, 2);
             RefreshHpRefreshRateState();
         }
 
@@ -541,12 +560,7 @@ namespace GHelper
             labelBacklight.Text = keyboard.DisplayText;
             labelGPU.Text = gpuMode.DisplayText;
             labelSreen.Text = display.Display;
-            if (hpRefreshRateMenu is not null)
-            {
-                int? currentRate = hpLiveTelemetry.DisplayRefreshRateHz;
-                buttonScreenAuto.Text = currentRate is { } hz ? $"Refresh rate: {hz}Hz" : "Refresh rate: Unavailable";
-                buttonScreenAuto.Activated = currentRate is not null && hpDisplayRefreshRateState.IsAvailable;
-            }
+            UpdateHpRefreshRateButtons(hpLiveTelemetry.DisplayRefreshRateHz);
             labelPerf.Text = HpPerformanceModeStatus.DisplayText;
             panelPerformance.AccessibleName = HpPerformanceModeStatus.DisplayText;
             foreach (RButton button in new[] { buttonSilent, buttonBalanced, buttonTurbo })
@@ -561,7 +575,39 @@ namespace GHelper
             if (hpLiveTelemetrySummary is not null)
                 hpLiveTelemetrySummary.Text = display.Summary + Environment.NewLine + keyboard.EvidenceText +
                     Environment.NewLine + gpuMode.EvidenceText + Environment.NewLine + HpPerformanceModeStatus.Blocker;
+            PopulateHpUserDiagnosticSummary(new HpDiagnosticUserSummaryInput
+            {
+                DeviceIdentity = FormatHpDeviceIdentity(detected, snapshot, hpCachedDiagnosticReport),
+                BiosVersion = GetSnapshotOrReportValue(snapshot?.BiosVersion, hpCachedDiagnosticReport, "BiosVersion"),
+                TelemetryAvailability = display.Availability,
+                CpuLoad = display.CpuLoad,
+                GpuTemperature = display.GpuTemperature,
+                BatteryPower = display.BatteryPower,
+                RefreshRate = display.RefreshRate,
+                CpuTemperature = display.CpuTemperature,
+                FanRpm = display.FanRpm,
+                GpuModeCapability = RemoveHpStatusPrefix(gpuMode.DisplayText, "GPU Mode:"),
+                KeyboardBacklightCapability = RemoveHpStatusPrefix(keyboard.DisplayText, "Keyboard lighting:"),
+                BatteryCareCapability = display.BatteryCareStatus,
+                FanControlStatus = hpFanProofGaps?.NormalFanControlDecision ?? "NO-GO - normal fan control is unavailable."
+            });
         }
+
+        private static string FormatHpDeviceIdentity(
+            bool? detected, HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
+        {
+            if (detected == false) return "HP Victus not detected";
+            if (detected is null) return "Unavailable";
+
+            string model = GetSnapshotOrReportValue(snapshot?.Model, report, "Model");
+            string sku = GetSnapshotOrReportValue(snapshot?.SystemSku, report, "Sku");
+            return $"Detected - {model} | SKU {sku}";
+        }
+
+        private static string RemoveHpStatusPrefix(string value, string prefix) =>
+            value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+                ? value[prefix.Length..].Trim()
+                : value;
 
         private static byte? GetHpGpuModeSwitchRaw(
             HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
@@ -587,40 +633,33 @@ namespace GHelper
             hpDisplayRefreshRateState = HpDisplayRefreshRateControl.BuildState(
                 ScreenNative.GetDisplayMode(displayName),
                 ScreenNative.GetDisplayModes(displayName));
-            buttonScreenAuto.Enabled = hpDisplayRefreshRateState.IsAvailable;
-            buttonScreenAuto.TabStop = hpDisplayRefreshRateState.IsAvailable;
-            toolTip.SetToolTip(buttonScreenAuto, hpDisplayRefreshRateState.IsAvailable
-                ? "Select a Windows-reported refresh rate for the current internal-panel resolution."
-                : "Internal display refresh-rate switching is unavailable.");
+            UpdateHpRefreshRateButtons(hpDisplayRefreshRateState.CurrentRateHz);
         }
 
         private void ButtonHpRefreshRate_Click(object? sender, EventArgs e)
         {
-            if (!AppConfig.IsHpVictusHardwareMode() || hpRefreshRateMenu is null) return;
-            RefreshHpRefreshRateState();
-            if (!hpDisplayRefreshRateState.IsAvailable) return;
-
-            foreach (ToolStripItem item in hpRefreshRateMenu.Items.Cast<ToolStripItem>().ToList()) item.Dispose();
-            hpRefreshRateMenu.Items.Clear();
-            foreach (int rate in hpDisplayRefreshRateState.SupportedRates)
-            {
-                var item = new ToolStripMenuItem($"{rate}Hz")
-                {
-                    Checked = rate == hpDisplayRefreshRateState.CurrentRateHz,
-                    Tag = rate
-                };
-                item.Click += ButtonHpRefreshRateMenuItem_Click;
-                hpRefreshRateMenu.Items.Add(item);
-            }
-            hpRefreshRateMenu.Show(buttonScreenAuto, new Point(0, buttonScreenAuto.Height));
-        }
-
-        private void ButtonHpRefreshRateMenuItem_Click(object? sender, EventArgs e)
-        {
-            if (!AppConfig.IsHpVictusHardwareMode() || sender is not ToolStripMenuItem { Tag: int requestedRate }) return;
+            if (!AppConfig.IsHpVictusHardwareMode() || sender is not RButton { Tag: int requestedRate }) return;
             HpDisplayRefreshRateApplyResult result = ApplyHpRefreshRate(requestedRate);
             if (!result.Succeeded)
                 MessageBox.Show(this, result.Message, "VictusX Display", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void UpdateHpRefreshRateButtons(int? currentRateHz)
+        {
+            UpdateHpRefreshRateButton(button60Hz, 60, currentRateHz);
+            UpdateHpRefreshRateButton(button120Hz, 144, currentRateHz);
+            buttonScreenAuto.Activated = false;
+        }
+
+        private void UpdateHpRefreshRateButton(RButton button, int rate, int? currentRateHz)
+        {
+            button.Visible = hpDisplayRefreshRateState.SupportedRates.Contains(rate);
+            button.Enabled = button.Visible;
+            button.TabStop = button.Visible;
+            button.Activated = button.Visible && currentRateHz == rate;
+            toolTip.SetToolTip(button, button.Visible
+                ? $"Set the internal display to {rate}Hz using Windows display settings."
+                : $"{rate}Hz is not reported for the current internal-panel mode.");
         }
 
         private HpDisplayRefreshRateApplyResult ApplyHpRefreshRate(int requestedRate)
@@ -742,6 +781,18 @@ namespace GHelper
                 AccessibleName = "Read-only OS telemetry sources and freshness"
             };
 
+            var userSummary = new TableLayoutPanel
+            {
+                AccessibleName = "User-facing diagnostic summary",
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 2,
+                Dock = DockStyle.Top,
+                Padding = new Padding(10, 0, 10, 5)
+            };
+            userSummary.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220F));
+            userSummary.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+
             var details = new TableLayoutPanel
             {
                 AutoSize = true,
@@ -752,6 +803,24 @@ namespace GHelper
             };
             details.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 220F));
             details.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+
+            var advancedPanel = new Panel
+            {
+                AccessibleName = "Advanced developer diagnostics",
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                BackColor = formBack,
+                Dock = DockStyle.Top,
+                Visible = false
+            };
+            advancedPanel.Controls.Add(details);
+            advancedPanel.Controls.Add(hpLiveTelemetrySummary);
+
+            hpReadOnlyTelemetryAdvancedToggle = CreateHpDiagnosticActionButton(
+                "Show Advanced / Developer diagnostics", ButtonHpDiagnosticAdvanced_Click);
+            hpReadOnlyTelemetryAdvancedToggle.AccessibleName = "Show advanced developer diagnostics";
+            hpReadOnlyTelemetryAdvancedToggle.Dock = DockStyle.Top;
+            hpReadOnlyTelemetryAdvancedToggle.Margin = new Padding(10, 5, 10, 5);
 
             var actions = new FlowLayoutPanel
             {
@@ -768,13 +837,16 @@ namespace GHelper
             actions.Controls.Add(CreateHpDiagnosticActionButton("Open diagnostic folder", ButtonHpDiagnosticOpenReportFolder_Click));
             actions.Controls.Add(CreateHpDiagnosticActionButton("Export diagnostic report", ButtonHpDiagnosticExport_Click));
 
+            hpReadOnlyTelemetrySummary = userSummary;
             hpReadOnlyTelemetryDetails = details;
+            hpReadOnlyTelemetryAdvanced = advancedPanel;
             ReloadHpCachedDiagnosticReport();
             PopulateHpReadOnlyTelemetryPanel();
 
             panel.Controls.Add(actions);
-            panel.Controls.Add(details);
-            panel.Controls.Add(hpLiveTelemetrySummary);
+            panel.Controls.Add(advancedPanel);
+            panel.Controls.Add(hpReadOnlyTelemetryAdvancedToggle);
+            panel.Controls.Add(userSummary);
             panel.Controls.Add(hpReadOnlyTelemetryWarning);
             panel.Controls.Add(hpReadOnlyTelemetryHealth);
             panel.Controls.Add(hpReadOnlyTelemetrySource);
@@ -793,12 +865,23 @@ namespace GHelper
             ShowHpReadOnlyMainShell();
         }
 
+        private void ButtonHpDiagnosticAdvanced_Click(object? sender, EventArgs e)
+        {
+            if (hpReadOnlyTelemetryAdvanced is null || hpReadOnlyTelemetryAdvancedToggle is null) return;
+
+            hpReadOnlyTelemetryAdvanced.Visible = !hpReadOnlyTelemetryAdvanced.Visible;
+            hpReadOnlyTelemetryAdvancedToggle.Text = hpReadOnlyTelemetryAdvanced.Visible
+                ? "Hide Advanced / Developer diagnostics"
+                : "Show Advanced / Developer diagnostics";
+        }
+
         private void ShowHpReadOnlyDiagnostic()
         {
             if (hpReadOnlyTelemetryPanel is null) return;
 
             EnsureHpDiagnosticForm();
             if (hpDiagnosticForm is null) return;
+            RefreshHpLiveTelemetry(force: true);
 
             if (hpDiagnosticForm.Visible)
             {
@@ -1017,6 +1100,24 @@ namespace GHelper
             }
 
             hpReadOnlyTelemetryDetails.ResumeLayout();
+        }
+
+        private void PopulateHpUserDiagnosticSummary(HpDiagnosticUserSummaryInput input)
+        {
+            if (hpReadOnlyTelemetrySummary is null) return;
+
+            HpDiagnosticDashboardSection summary = HpDiagnosticDashboardFormatter.BuildUserSummary(input);
+            if (hpLastUserDiagnosticSummary?.Rows.SequenceEqual(summary.Rows) == true) return;
+
+            hpLastUserDiagnosticSummary = summary;
+            hpReadOnlyTelemetrySummary.SuspendLayout();
+            hpReadOnlyTelemetrySummary.Controls.Clear();
+            hpReadOnlyTelemetrySummary.RowStyles.Clear();
+            hpReadOnlyTelemetrySummary.RowCount = 0;
+            AddHpTelemetrySection(hpReadOnlyTelemetrySummary, summary.Title);
+            foreach (HpDiagnosticDashboardRow row in summary.Rows)
+                AddHpTelemetryRow(hpReadOnlyTelemetrySummary, row);
+            hpReadOnlyTelemetrySummary.ResumeLayout();
         }
 
         private void UpdateHpDiagnosticHealthSummary(HpDiagnosticDashboardInput input)

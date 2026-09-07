@@ -175,6 +175,26 @@ public static class HpDiagnosticDashboardFormatter
         ];
     }
 
+    public static HpDiagnosticDashboardSection BuildUserSummary(HpDiagnosticUserSummaryInput input)
+    {
+        return new("User-facing summary",
+        [
+            UserRow("Device identity", input.DeviceIdentity),
+            UserRow("BIOS", input.BiosVersion),
+            UserRow("Telemetry", input.TelemetryAvailability),
+            UserRow("CPU load", input.CpuLoad),
+            UserRow("GPU temperature", input.GpuTemperature),
+            UserRow("Battery / AC", input.BatteryPower),
+            UserRow("Refresh rate", input.RefreshRate),
+            UserRow("CPU temperature", input.CpuTemperature),
+            UserRow("Fan RPM", input.FanRpm),
+            UserRow("GPU mode", input.GpuModeCapability),
+            UserRow("Keyboard lighting", input.KeyboardBacklightCapability),
+            UserRow("Battery care", input.BatteryCareCapability),
+            UserRow("Fan control", input.FanControlStatus, blocked: true)
+        ]);
+    }
+
     public static string BuildSummary(HpDiagnosticDashboardInput input)
     {
         return string.Join(
@@ -321,6 +341,28 @@ public static class HpDiagnosticDashboardFormatter
         string displayValue = string.IsNullOrWhiteSpace(value) ? NotAvailable : value;
         return new HpDiagnosticDashboardRow(label, displayValue, GetStatus(displayValue));
     }
+
+    private static HpDiagnosticDashboardRow UserRow(string label, string? value, bool blocked = false)
+    {
+        string displayValue = string.IsNullOrWhiteSpace(value) ? "Unavailable" : value;
+        HpDiagnosticDashboardStatus status = blocked
+            ? HpDiagnosticDashboardStatus.Blocked
+            : IsUnavailableUserValue(displayValue)
+                ? HpDiagnosticDashboardStatus.Normal
+                : HpDiagnosticDashboardStatus.Ready;
+        return new HpDiagnosticDashboardRow(label, displayValue, status);
+    }
+
+    private static bool IsUnavailableUserValue(string value) =>
+        value.Contains("Unavailable", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("Unknown", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("Stale", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("Not sampled", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("not detected", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("Not supported", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("Not exposed", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("No battery", StringComparison.OrdinalIgnoreCase) ||
+        value.Contains("state unavailable", StringComparison.OrdinalIgnoreCase);
 
     private static string ClassifyAvailability(params string?[] values)
     {
