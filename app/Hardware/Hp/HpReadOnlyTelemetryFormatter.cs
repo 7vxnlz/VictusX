@@ -1,7 +1,16 @@
 namespace GHelper.Hardware.Hp;
 
 internal sealed record HpReadOnlyTelemetryDisplay(
-    string Cpu, string Gpu, string FanAndDevice, string Battery, string BatteryCare, string Display, string Summary);
+    string Cpu, string Gpu, string FanAndDevice, string Battery, string BatteryCare, string Display, string Summary,
+    HpTrayTelemetryStatus TrayStatus);
+
+internal sealed record HpTrayTelemetryStatus(string Cpu, string Gpu, string Battery, string Screen)
+{
+    internal IReadOnlyList<string> Rows => [Cpu, Gpu, Battery, Screen];
+
+    internal static HpTrayTelemetryStatus Unavailable { get; } = new(
+        "CPU: Unavailable", "GPU: Unavailable", "Battery: Unavailable", "Screen: Unavailable");
+}
 
 internal static class HpReadOnlyTelemetryFormatter
 {
@@ -43,10 +52,27 @@ internal static class HpReadOnlyTelemetryFormatter
 
         string batteryStatus = current.BatteryPresent == false ? $"No battery | {ac}" :
             current.AcOnline == true && current.Charging.HasValue ? $"{battery} | AC | {charging}" : $"{battery} | {ac}";
+        var trayStatus = new HpTrayTelemetryStatus(
+            current.CpuLoadPercent is { } cpuLoad ? $"CPU: {cpuLoad}%" : "CPU: Unavailable",
+            gpuFresh ? $"GPU: {current.GpuTemperature!.Value.Celsius:0} °C" : "GPU: Unavailable",
+            FormatTrayBattery(current),
+            current.DisplayRefreshRateHz is { } trayHz ? $"Screen: {trayHz} Hz" : "Screen: Unavailable");
         return new(
             $"Temp: Unavailable | {load}", $"Temp: {gpuTemperature}",
             $"Fan RPM: Unavailable | {device}" + (cachedIdentity ? " (cached)" : ""),
-            batteryStatus, $"Battery care: {batteryCare}", $"Screen: {refreshRate}", summary);
+            batteryStatus, $"Battery care: {batteryCare}", $"Screen: {refreshRate}", summary, trayStatus);
+    }
+
+    private static string FormatTrayBattery(HpReadOnlyTelemetrySnapshot current)
+    {
+        if (current.BatteryPresent == false) return "Battery: Not present";
+        if (current.BatteryPercent is not { } percent) return "Battery: Unavailable";
+        return current.AcOnline switch
+        {
+            true => $"Battery: {percent}% · AC",
+            false => $"Battery: {percent}% · On battery",
+            _ => $"Battery: {percent}%"
+        };
     }
 
     internal static string FormatBatteryCare(HpBatteryCareProbeResult? result) => result switch

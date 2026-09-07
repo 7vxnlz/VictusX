@@ -125,6 +125,34 @@ public sealed class HpReadOnlyTelemetryTests
         Assert.DoesNotContain("75%", stale.Battery);
         Assert.Equal("Screen: Unavailable", stale.Display);
         Assert.Contains("Unknown", stale.Cpu);
+        Assert.Equal(HpTrayTelemetryStatus.Unavailable, stale.TrayStatus);
+    }
+
+    [Fact]
+    public void TrayStatus_FormatsAvailableTelemetryCompactly()
+    {
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, 24, 78, true, true, false, 144)
+        {
+            GpuTemperature = new(Now, 52)
+        };
+
+        HpTrayTelemetryStatus tray = HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).TrayStatus;
+
+        Assert.Equal("CPU: 24%", tray.Cpu);
+        Assert.Equal("GPU: 52 °C", tray.Gpu);
+        Assert.Equal("Battery: 78% · AC", tray.Battery);
+        Assert.Equal("Screen: 144 Hz", tray.Screen);
+    }
+
+    [Theory]
+    [InlineData(true, "Battery: 78% · AC")]
+    [InlineData(false, "Battery: 78% · On battery")]
+    [InlineData(null, "Battery: 78%")]
+    public void TrayStatus_FormatsBatteryPowerState(bool? acOnline, string expected)
+    {
+        var snapshot = new HpReadOnlyTelemetrySnapshot(Now, null, 78, true, acOnline, false);
+
+        Assert.Equal(expected, HpReadOnlyTelemetryFormatter.Format(snapshot, Now, true, false).TrayStatus.Battery);
     }
 
     [Theory]

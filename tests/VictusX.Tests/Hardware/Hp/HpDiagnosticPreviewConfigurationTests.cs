@@ -326,6 +326,10 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("BeginInvoke((Action)SetHpReadOnlyContextMenu);", settings);
         Assert.Contains("RefreshHpLiveTelemetry(force: true);", settings);
         Assert.Contains("var currentMode = Modes.GetCurrent();", settings);
+        Assert.Contains("contextMenuStrip.Opening += (_, _) => RefreshHpLiveTelemetry(force: true);", settings);
+        Assert.Contains("foreach (string row in hpTrayTelemetryStatus.Rows)", settings);
+        Assert.Contains("Enabled = false", settings);
+        Assert.Contains("UpdateHpTrayStatusItems();", settings);
         Assert.Contains("tableScreen.SetColumnSpan(buttonScreenAuto, 4);", settings);
         Assert.Contains("button60Hz, button120Hz, buttonMiniled", settings);
         Assert.Contains("buttonScreenAuto.Click -= ButtonScreenAuto_Click;", settings);

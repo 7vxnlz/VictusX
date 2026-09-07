@@ -46,6 +46,8 @@ namespace GHelper
         Label? hpLiveTelemetrySummary;
         ContextMenuStrip? hpRefreshRateMenu;
         HpDisplayRefreshRateState hpDisplayRefreshRateState = HpDisplayRefreshRateState.Unavailable;
+        readonly List<ToolStripMenuItem> hpTrayStatusItems = [];
+        HpTrayTelemetryStatus hpTrayTelemetryStatus = HpTrayTelemetryStatus.Unavailable;
 
         public GPUModeControl gpuControl;
         public AllyControl allyControl;
@@ -407,6 +409,7 @@ namespace GHelper
 
             hpMainShellPanel = panelPerformance;
             ConfigureHpRefreshRateControl();
+            contextMenuStrip.Opening += (_, _) => RefreshHpLiveTelemetry(force: true);
             AddHpDiagnosticFooterAction();
         }
 
@@ -528,6 +531,8 @@ namespace GHelper
                 GetHpGpuModeSwitchRaw(snapshot, hpCachedDiagnosticReport));
             HpReadOnlyTelemetryDisplay display = HpReadOnlyTelemetryFormatter.Format(
                 hpLiveTelemetry, DateTimeOffset.UtcNow, detected, cachedIdentity);
+            hpTrayTelemetryStatus = display.TrayStatus;
+            UpdateHpTrayStatusItems();
             labelCPUFan.Text = display.Cpu;
             labelGPUFan.Text = display.Gpu;
             labelTipGPU.Text = display.FanAndDevice;
@@ -1894,6 +1899,7 @@ namespace GHelper
             }
 
             contextMenuStrip.Items.Clear();
+            hpTrayStatusItems.Clear();
             contextMenuStrip.ShowCheckMargin = true;
             contextMenuStrip.ShowImageMargin = false;
             contextMenuStrip.ImageScalingSize = new Size(16, 16);
@@ -1905,6 +1911,19 @@ namespace GHelper
             var diagnostic = new ToolStripMenuItem("Diagnostic");
             diagnostic.Click += (sender, args) => ShowHpReadOnlyDiagnostic();
             contextMenuStrip.Items.Add(diagnostic);
+
+            contextMenuStrip.Items.Add("-");
+            foreach (string row in hpTrayTelemetryStatus.Rows)
+            {
+                var status = new ToolStripMenuItem(row)
+                {
+                    Enabled = false,
+                    AccessibleName = row
+                };
+                hpTrayStatusItems.Add(status);
+                contextMenuStrip.Items.Add(status);
+            }
+            contextMenuStrip.Items.Add("-");
 
             RefreshHpRefreshRateState();
             var refreshRate = new ToolStripMenuItem("Refresh Rate")
@@ -1931,6 +1950,16 @@ namespace GHelper
             InitContextMenuTheme();
 
             if (Program.trayIcon is not null) Program.trayIcon.ContextMenuStrip = contextMenuStrip;
+        }
+
+        private void UpdateHpTrayStatusItems()
+        {
+            IReadOnlyList<string> rows = hpTrayTelemetryStatus.Rows;
+            for (int index = 0; index < Math.Min(rows.Count, hpTrayStatusItems.Count); index++)
+            {
+                hpTrayStatusItems[index].Text = rows[index];
+                hpTrayStatusItems[index].AccessibleName = rows[index];
+            }
         }
 
         private void ButtonHpTrayRefreshRate_Click(object? sender, EventArgs e)
