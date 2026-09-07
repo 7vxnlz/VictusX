@@ -2862,12 +2862,24 @@ namespace GHelper
 
 
         private (int, bool, bool)? lastIcon;
+        private HpTrayIconKind? lastHpTrayIcon;
         private bool isDark = CheckSystemDarkModeStatus();
 
         public void VisualiseIcon(bool themeChange = false)
         {
             if (Program.trayIcon is null) return;
-            if (AppConfig.IsHpVictusHardwareMode()) return;
+            if (AppConfig.IsHpVictusHardwareMode())
+            {
+                int basePerformanceMode = Modes.GetCurrentBase();
+                HpTrayIconKind iconKind = HpTrayIconSelector.Select(basePerformanceMode);
+                if (lastHpTrayIcon == iconKind) return;
+                lastHpTrayIcon = iconKind;
+
+                Icon? oldHpIcon = Program.trayIcon.Icon;
+                Program.trayIcon.Icon = Program.GetHpTrayIcon(basePerformanceMode);
+                oldHpIcon?.Dispose();
+                return;
+            }
             if (themeChange) isDark = CheckSystemDarkModeStatus();
 
             int GPUMode = AppConfig.Get("gpu_mode");

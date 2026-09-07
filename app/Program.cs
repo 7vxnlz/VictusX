@@ -8,6 +8,7 @@ using GHelper.Input;
 using GHelper.Mode;
 using GHelper.Overlay;
 using GHelper.Peripherals;
+using GHelper.UI;
 using GHelper.USB;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -936,6 +937,28 @@ namespace GHelper
         internal static Icon GetTrayIcon()
         {
             if (!AppConfig.IsHpVictusHardwareMode()) return Properties.Resources.standard;
+
+            return GetHpTrayIcon(Modes.GetCurrentBase());
+        }
+
+        internal static Icon GetHpTrayIcon(int basePerformanceMode)
+        {
+            string resourceName = HpTrayIconSelector.GetResourceName(
+                HpTrayIconSelector.Select(basePerformanceMode));
+
+            try
+            {
+                using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName);
+                if (stream is not null)
+                {
+                    using var icon = new Icon(stream);
+                    return (Icon)icon.Clone();
+                }
+            }
+            catch (Exception)
+            {
+                // Fall through to the fixed application identity icon.
+            }
 
             try
             {

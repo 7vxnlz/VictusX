@@ -1,6 +1,6 @@
 # Preview Release Current Blockers
 
-Updated: 2026-09-06
+Updated: 2026-09-07
 
 This is the concise current blocker snapshot for the VictusX HP Diagnostic preview. It does not authorize publishing, signing, checksum generation, dependency changes, package creation, or runtime behavior changes.
 
@@ -15,7 +15,6 @@ This is the concise current blocker snapshot for the VictusX HP Diagnostic previ
 
 | Item | Status | Required evidence / decision | Primary reference |
 | --- | --- | --- | --- |
-| Final `VictusX.ico` asset | Blocked | `app/Assets/VictusX.ico` must exist, be original or properly licensed, have provenance/attribution recorded, and pass executable/window/tray/Explorer verification. | [Icon wiring checkpoint](victusx-icon-wiring-checkpoint.md), [Icon asset requirements](victusx-icon-asset-requirements.md) |
 | Icon attribution | Blocked | The final icon asset's ownership, license, provenance, and required attribution must be reviewed and reflected in release notices. | [Third-Party Notices](../THIRD-PARTY-NOTICES.md), [Icon asset requirements](victusx-icon-asset-requirements.md) |
 | Self-contained .NET runtime artifact notice matching | Blocked | Match the exact runtime and Windows Desktop runtime components, native runtime files, corresponding runtime license/notices, RID/version, and final artifact hash/reference against the release candidate. | [.NET runtime notice checklist](dotnet-runtime-notice-checklist.md), [Package contents inspection](preview-package-contents-inspection.md) |
 | `THIRD-PARTY-NOTICES.md` release readiness | Blocked | Promote from source-assembled status only after runtime-pack notice matching, external NvAPIWrapper layout verification, icon attribution, and final artifact matching are complete. | [Third-Party Notices](../THIRD-PARTY-NOTICES.md), [Runtime dependency review](runtime-dependency-license-review.md) |
@@ -28,7 +27,7 @@ This is the concise current blocker snapshot for the VictusX HP Diagnostic previ
 | Item | Status | Evidence |
 | --- | --- | --- |
 | HP inherited-shell UI visual state | Done | Manual confirmation recorded: compact inherited shell, readable footer labels/icons, aligned disabled captions, and read-only Diagnostic side panel. See [HP inherited shell UI checkpoint](hp-inherited-shell-ui-final-checkpoint.md). |
-| Icon/app identity source wiring | Done pending asset | Conditional executable/tray wiring and fail-closed publish profile behavior are in source; final verification waits for `VictusX.ico` and a package candidate. See [Icon implementation plan](victusx-icon-app-identity-implementation-plan.md). |
+| Icon assets and source wiring | Done pending package verification | Four valid multi-frame ICO assets are wired for fixed application identity and HP Silent/Balanced/Turbo tray routing; unknown HP mode uses the base icon and non-HP behavior is unchanged. See [Icon wiring checkpoint](victusx-icon-wiring-checkpoint.md). |
 | Runtime dependency license identity review | Done | Current restore graph review covers seven direct runtime packages and one transitive package. Artifact presence remains part of final inspection. See [Runtime dependency review](runtime-dependency-license-review.md). |
 | Package-library license/notice files | Done | MIT, Apache-2.0/NOTICE, LGPL-3.0/GPL-3.0, and package notice texts are assembled and publish-wired under `app/Assets/Licenses`. |
 | NvAPIWrapper LGPL packaging architecture | Done pending artifact verification | The HP profile preserves the existing package/API behavior and excludes `NvAPIWrapper.dll` from the single-file bundle as a replaceable sidecar. Final inspection must confirm the DLL is external, version-matched, replaceable, and accompanied by its notices. See [Runtime dependency review](runtime-dependency-license-review.md). |

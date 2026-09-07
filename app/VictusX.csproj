@@ -9,8 +9,7 @@
     <IsPublishable>True</IsPublishable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <StartupObject>GHelper.Program</StartupObject>
-    <ApplicationIcon Condition="Exists('Assets\VictusX.ico')">Assets\VictusX.ico</ApplicationIcon>
-    <ApplicationIcon Condition="!Exists('Assets\VictusX.ico')">favicon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\VictusX.ico</ApplicationIcon>
     <Platforms>x64</Platforms>
     <Platform>x64</Platform>
     <AssemblyName>VictusX</AssemblyName>
@@ -41,6 +40,18 @@
 
 
   <ItemGroup>
+    <EmbeddedResource Include="Assets\VictusX.ico">
+      <LogicalName>GHelper.Assets.VictusX.ico</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Assets\VictusX.Silent.ico">
+      <LogicalName>GHelper.Assets.VictusX.Silent.ico</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Assets\VictusX.Balanced.ico">
+      <LogicalName>GHelper.Assets.VictusX.Balanced.ico</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Assets\VictusX.Turbo.ico">
+      <LogicalName>GHelper.Assets.VictusX.Turbo.ico</LogicalName>
+    </EmbeddedResource>
     <Content Include="favicon.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>

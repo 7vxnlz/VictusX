@@ -1,30 +1,36 @@
 # VictusX Icon Wiring Checkpoint
 
-## Current Wiring
+## Final Wiring
 
-- `app/VictusX.csproj` conditionally embeds `app/Assets/VictusX.ico` when it exists and otherwise uses `app/favicon.ico` as the compatible build fallback.
-- HP-mode `NotifyIcon` uses the executable associated icon in `app/Program.cs`, while non-HP mode continues to start with inherited `Properties.Resources.standard`.
-- `Settings.VisualiseIcon` preserves inherited GPU-mode tray resource swapping outside HP mode and intentionally skips it in HP mode.
-- `app/UI/IconHelper.cs` obtains the large window icon from the executable associated icon. Therefore the executable icon will also cover the large form/window surface after `ApplicationIcon` is updated.
+- `app/VictusX.csproj` uses `app/Assets/VictusX.ico` unconditionally as `ApplicationIcon`, fixing executable, window, taskbar, Explorer, and Alt-Tab identity to VictusX.
+- All four VictusX icons are embedded as named managed resources for reliable tray loading.
+- In HP mode, `Program.GetTrayIcon()` selects from the inherited base performance-mode state through `HpTrayIconSelector`:
+  - Silent -> `VictusX.Silent.ico`
+  - Balanced -> `VictusX.Balanced.ico`
+  - Turbo/Performance -> `VictusX.Turbo.ico`
+  - unknown or unsupported -> `VictusX.ico`
+- `Settings.VisualiseIcon` refreshes only the HP tray icon from that selector. The fixed application icon never changes with mode.
+- Outside HP mode, the inherited `Properties.Resources.standard` startup icon and GPU-mode tray swapping remain unchanged.
 
-## Final Asset Contract
+## Asset Validation
 
-The approved final multi-resolution asset should be added at exactly:
+Validation completed on 2026-09-07. Each supplied file is a loadable Windows ICO container with seven 32-bit frames:
 
 ```text
-app/Assets/VictusX.ico
+256x256, 128x128, 64x64, 48x48, 32x32, 24x24, 16x16
 ```
 
-The reviewed asset is currently absent. The project now uses conditional wiring so dropping the approved file at the required path and rebuilding is sufficient:
+| Asset | SHA-256 |
+| --- | --- |
+| `VictusX.ico` | `B3EF54509D0F636D763AA00B957D3A428557B3836D63F67029BDF9094329E9F6` |
+| `VictusX.Silent.ico` | `406EE94792BF3BF9790454C655EA5A4965D06E7E75372883E1A03677105D093A` |
+| `VictusX.Balanced.ico` | `D10DF15027780A8B88B2F633DFDE97C48DA319ED1CD749D8E94F9EDDD5388832` |
+| `VictusX.Turbo.ico` | `C3A74F991351F01F55FD537387B4F58C32126CE2FD0AE7B0673F194856069DE5` |
 
-1. `app/VictusX.csproj` selects `Assets\\VictusX.ico` only when that file exists; otherwise it retains `favicon.ico` as the build fallback.
-2. `Program.GetTrayIcon()` extracts the executable icon in `--hp-victus` mode, so the same embedded asset supplies the HP tray icon without adding a generated resource entry.
-3. `Settings.VisualiseIcon` returns immediately in HP mode, preventing inherited GPU-mode resources from replacing the HP tray icon. Default-mode tray behavior remains unchanged.
+The built executable exposes an associated application icon, and the built assembly contains all four expected `GHelper.Assets.VictusX*.ico` resources.
 
-This gives the executable, taskbar, Explorer, Alt-Tab, and HP tray identity one approved source asset after it is supplied, while preserving inherited default-mode icon behavior outside HP mode.
+## Boundaries
 
-## Metadata And Remaining Inheritance
+The selector reads only `Modes.GetCurrentBase()`. It adds no mode detection, mode writes, WMI/BIOS access, or hardware behavior. Inherited GPU-mode icon replacement remains isolated to non-HP mode.
 
-`AssemblyName`, `Product`, description, company, authors, and version metadata already identify VictusX. The default launch profile has been renamed from `GHelper` to `VictusX`; no runtime behavior changes. `RootNamespace=GHelper`, `StartupObject=GHelper.Program`, resource logical names, `favicon.ico`, and the inherited tray/GPU icon resources remain for compatibility until the reviewed asset integration task.
-
-No placeholder icon, generated resource entry, artwork, or package artifact was added. The final asset must satisfy the provenance, licensing, size, and dark/light contrast requirements in [VictusX Icon Asset Requirements](victusx-icon-asset-requirements.md) before it is supplied at the expected path.
+The files were supplied as the final VictusX asset set; no artwork was generated or modified. Technical source integration is complete. Final package inspection must still match these hashes and confirm the project owner's provenance/license statement and any required attribution before release.

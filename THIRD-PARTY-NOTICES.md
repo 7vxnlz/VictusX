@@ -67,9 +67,9 @@ The following packages are recorded only in the test project or its resolved tes
 
 ## Icon Attribution (Pending)
 
-Status: **Pending asset**.
+Status: **Final assets present; release provenance confirmation pending**.
 
-The current inherited icon is not approved for the future VictusX preview. `app/Assets/VictusX.ico` is not present. A replacement icon's ownership, license, provenance, and any required attribution must be recorded before it is included in a package. See [VictusX Icon Asset Requirements](docs/victusx-icon-asset-requirements.md).
+The project-supplied final `VictusX.ico`, `VictusX.Silent.ico`, `VictusX.Balanced.ico`, and `VictusX.Turbo.ico` assets passed Windows ICO container and frame validation and are wired for fixed application identity plus HP mode-aware tray identity. No external artwork source or third-party attribution requirement was supplied. Final release review must retain the recorded asset hashes and confirm the project owner's ownership/license statement and any required attribution against the package candidate. See [VictusX Icon Wiring Checkpoint](docs/victusx-icon-wiring-checkpoint.md).
 
 ## Trademark Notice
 

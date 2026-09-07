@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\app\UI\HpTrayIconSelector.cs" Link="UI\HpTrayIconSelector.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpGpuTemperaturePoller.cs" Link="Hardware\Hp\HpGpuTemperaturePoller.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpBatteryCareReadOnlyContracts.cs" Link="Hardware\Hp\HpBatteryCareReadOnlyContracts.cs" />
     <Compile Include="..\..\app\Hardware\Hp\HpKeyboardBacklightReadOnlyStatus.cs" Link="Hardware\Hp\HpKeyboardBacklightReadOnlyStatus.cs" />

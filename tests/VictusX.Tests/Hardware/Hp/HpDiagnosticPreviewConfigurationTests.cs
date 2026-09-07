@@ -395,19 +395,25 @@ public sealed class HpDiagnosticPreviewConfigurationTests
     }
 
     [Fact]
-    public void HpTrayIdentity_UsesExecutableIconAndSkipsInheritedGpuIconSwaps()
+    public void HpTrayIdentity_UsesFixedApplicationIconAndModeAwareEmbeddedIcons()
     {
         string project = ReadRepositoryFile("app", "VictusX.csproj");
         string program = ReadRepositoryFile("app", "Program.cs");
         string settings = ReadRepositoryFile("app", "Settings.cs");
 
-        Assert.Contains("<ApplicationIcon Condition=\"Exists('Assets\\VictusX.ico')\">Assets\\VictusX.ico</ApplicationIcon>", project, StringComparison.Ordinal);
-        Assert.Contains("<ApplicationIcon Condition=\"!Exists('Assets\\VictusX.ico')\">favicon.ico</ApplicationIcon>", project, StringComparison.Ordinal);
+        Assert.Contains("<ApplicationIcon>Assets\\VictusX.ico</ApplicationIcon>", project, StringComparison.Ordinal);
+        Assert.DoesNotContain("<ApplicationIcon>favicon.ico</ApplicationIcon>", project, StringComparison.Ordinal);
+        Assert.Contains("GHelper.Assets.VictusX.Silent.ico", project, StringComparison.Ordinal);
+        Assert.Contains("GHelper.Assets.VictusX.Balanced.ico", project, StringComparison.Ordinal);
+        Assert.Contains("GHelper.Assets.VictusX.Turbo.ico", project, StringComparison.Ordinal);
         Assert.Contains("Icon = GetTrayIcon(),", program, StringComparison.Ordinal);
         Assert.Contains("internal static Icon GetTrayIcon()", program, StringComparison.Ordinal);
+        Assert.Contains("return GetHpTrayIcon(Modes.GetCurrentBase());", program, StringComparison.Ordinal);
+        Assert.Contains("GetManifestResourceStream(resourceName)", program, StringComparison.Ordinal);
         Assert.Contains("Icon.ExtractAssociatedIcon(Application.ExecutablePath)", program, StringComparison.Ordinal);
         Assert.Contains("if (!AppConfig.IsHpVictusHardwareMode()) return Properties.Resources.standard;", program, StringComparison.Ordinal);
-        Assert.Contains("if (AppConfig.IsHpVictusHardwareMode()) return;", settings, StringComparison.Ordinal);
+        Assert.Contains("if (AppConfig.IsHpVictusHardwareMode())", settings, StringComparison.Ordinal);
+        Assert.Contains("Program.GetHpTrayIcon(basePerformanceMode)", settings, StringComparison.Ordinal);
         Assert.Contains("Icon newIcon = GPUMode switch", settings, StringComparison.Ordinal);
     }
 
