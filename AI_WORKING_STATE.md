@@ -5,7 +5,7 @@ Updated: 2026-09-07
 ## Current Truth
 
 - Product: VictusX, a .NET 10 Windows utility currently targeting HP Victus 16-s0035nt / SKU `7Z5Z2EA#AB8` / BIOS `F.31` / Thermal Policy V1.
-- HP mode uses the compact inherited shell. Unsupported controls are visible but disabled/read-only. Diagnostic opens as a read-only owned side panel.
+- HP mode uses the compact inherited shell. Unsupported controls are visible but disabled/read-only. The HP tray has explicit Open VictusX and Open Diagnostic actions; Diagnostic uses one read-only owned side panel and activates the existing instance when already open.
 - Status currently includes CPU load, battery/AC/charging, device detection, NVIDIA GPU temperature when NVAPI is available, named HP battery-care setting status when the read-only Instrumented BIOS inventory is accessible, exact-SKU keyboard-backlight capability evidence, and exact-device GPU-switch capability from cached SystemDesignData. The HP tray shows a compact disabled CPU/GPU/battery/screen summary from the existing formatted telemetry and refreshes it through the existing polling cycle/menu-open refresh. HP mode provides Windows-native refresh-rate actions in the main shell and tray only when one hardware-internal panel is identified and rates match its current resolution/bit depth/orientation; both routes share one validated apply path and have no vendor write path. Keyboard state/levels, numeric charge limits, and current GPU mode remain unavailable.
 - CPU package temperature and V1 fan RPM remain unavailable. `FanGetLevel` is raw-only and must never be shown as RPM or percent. `FanMaxGet` is inconclusive.
 - Developer-only four-byte SetFanMax pulse/hold is operational behind explicit CLI gates. Hold seconds mean bounded pre-restore wait, not physical fan-duration control.
@@ -23,7 +23,7 @@ Updated: 2026-09-07
 ## Verification Baseline
 
 - Branch: `main` tracking `origin/main`.
-- Last verified: `dotnet build VictusX.sln` passed with zero warnings and `dotnet test VictusX.sln --no-build` passed 404/404 after adding the read-only HP tray telemetry summary. No hardware or real display-mode command was run. Prior built-output inspection found the associated executable icon and all four expected embedded VictusX icon resources.
+- Last verified: `dotnet build VictusX.sln` passed with zero warnings and `dotnet test VictusX.sln --no-build` passed 405/405 after adding HP tray quick actions and single-instance Diagnostic activation. No hardware or real display-mode command was run. Prior built-output inspection found the associated executable icon and all four expected embedded VictusX icon resources.
 - NU1900 is not suppressed. Current-source audit evidence is cleared: a network-capable restore retrieved official NuGet vulnerability data, both project graphs reported no vulnerable packages, and required restore/build/test completed without NU1900. Repeat on the exact release candidate.
 
 ## Context Routing

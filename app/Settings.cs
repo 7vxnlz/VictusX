@@ -802,8 +802,9 @@ namespace GHelper
 
             if (hpDiagnosticForm.Visible)
             {
-                hpDiagnosticForm.Hide();
-                hpMainShellPanel?.Focus();
+                PositionHpDiagnosticForm();
+                hpDiagnosticForm.Activate();
+                hpDiagnosticForm.BringToFront();
                 return;
             }
 
@@ -1904,13 +1905,13 @@ namespace GHelper
             contextMenuStrip.ShowImageMargin = false;
             contextMenuStrip.ImageScalingSize = new Size(16, 16);
 
-            var main = new ToolStripMenuItem("Main");
-            main.Click += (sender, args) => ShowHpReadOnlyMainShell();
-            contextMenuStrip.Items.Add(main);
+            var openVictusX = new ToolStripMenuItem("Open VictusX");
+            openVictusX.Click += (sender, args) => ShowHpReadOnlyMainShell();
+            contextMenuStrip.Items.Add(openVictusX);
 
-            var diagnostic = new ToolStripMenuItem("Diagnostic");
-            diagnostic.Click += (sender, args) => ShowHpReadOnlyDiagnostic();
-            contextMenuStrip.Items.Add(diagnostic);
+            var openDiagnostic = new ToolStripMenuItem("Open Diagnostic");
+            openDiagnostic.Click += (sender, args) => ShowHpReadOnlyDiagnostic();
+            contextMenuStrip.Items.Add(openDiagnostic);
 
             contextMenuStrip.Items.Add("-");
             foreach (string row in hpTrayTelemetryStatus.Rows)

@@ -260,6 +260,26 @@ public sealed class HpDiagnosticPreviewConfigurationTests
     }
 
     [Fact]
+    public void HpTrayQuickActionsReuseMainAndSingleDiagnosticRoutes()
+    {
+        string settings = ReadRepositoryFile("app", "Settings.cs");
+
+        Assert.Contains("new ToolStripMenuItem(\"Open VictusX\")", settings);
+        Assert.Contains("openVictusX.Click += (sender, args) => ShowHpReadOnlyMainShell();", settings);
+        Assert.Contains("new ToolStripMenuItem(\"Open Diagnostic\")", settings);
+        Assert.Contains("openDiagnostic.Click += (sender, args) => ShowHpReadOnlyDiagnostic();", settings);
+        Assert.Contains("if (hpDiagnosticForm is not null && !hpDiagnosticForm.IsDisposed) return;", settings);
+        Assert.Contains("if (hpDiagnosticForm.Visible)", settings);
+        Assert.Contains("hpDiagnosticForm.Activate();", settings);
+        Assert.Contains("hpDiagnosticForm.BringToFront();", settings);
+        Assert.DoesNotContain("if (hpDiagnosticForm.Visible)\r\n            {\r\n                hpDiagnosticForm.Hide();", settings);
+
+        int hpBranch = settings.IndexOf("if (AppConfig.IsHpVictusHardwareMode())", settings.IndexOf("public void SetContextMenu()", StringComparison.Ordinal), StringComparison.Ordinal);
+        int nonHpMenu = settings.IndexOf("var currentMode = Modes.GetCurrent();", hpBranch, StringComparison.Ordinal);
+        Assert.True(hpBranch >= 0 && nonHpMenu > hpBranch);
+    }
+
+    [Fact]
     public void DisabledButtons_KeepThemeSafeTextAndReserveHorizontalIconSpace()
     {
         string button = ReadRepositoryFile("app", "UI", "RButton.cs");
