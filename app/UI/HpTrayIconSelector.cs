@@ -22,6 +22,14 @@ internal static class HpTrayIconSelector
         _ => HpTrayIconKind.Default
     };
 
+    internal static string FormatModeStatus(int basePerformanceMode) => Select(basePerformanceMode) switch
+    {
+        HpTrayIconKind.Silent => "Mode: Silent",
+        HpTrayIconKind.Balanced => "Mode: Balanced",
+        HpTrayIconKind.Turbo => "Mode: Turbo",
+        _ => "Mode: Unavailable"
+    };
+
     internal static string GetResourceName(HpTrayIconKind kind) => kind switch
     {
         HpTrayIconKind.Silent => "GHelper.Assets.VictusX.Silent.ico",

@@ -353,6 +353,8 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         Assert.Contains("var currentMode = Modes.GetCurrent();", settings);
         Assert.Contains("contextMenuStrip.Opening += (_, _) => RefreshHpLiveTelemetry(force: true);", settings);
         Assert.Contains("foreach (string row in hpTrayTelemetryStatus.Rows)", settings);
+        Assert.Contains("HpTrayIconSelector.FormatModeStatus(HpPerformanceModeStatus.CurrentBaseMode)", settings);
+        Assert.Contains("contextMenuStrip.Items.Add(hpTrayModeStatusItem);", settings);
         Assert.Contains("Enabled = false", settings);
         Assert.Contains("UpdateHpTrayStatusItems();", settings);
         Assert.Contains("buttonScreenAuto.Text = \"Automatic\";", settings);

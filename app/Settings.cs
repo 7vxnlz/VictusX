@@ -50,6 +50,7 @@ namespace GHelper
         Label? hpLiveTelemetrySummary;
         HpDisplayRefreshRateState hpDisplayRefreshRateState = HpDisplayRefreshRateState.Unavailable;
         readonly List<ToolStripMenuItem> hpTrayStatusItems = [];
+        ToolStripMenuItem? hpTrayModeStatusItem;
         HpTrayTelemetryStatus hpTrayTelemetryStatus = HpTrayTelemetryStatus.Unavailable;
 
         public GPUModeControl gpuControl;
@@ -2021,6 +2022,13 @@ namespace GHelper
             contextMenuStrip.Items.Add(openDiagnostic);
 
             contextMenuStrip.Items.Add("-");
+            string modeStatus = HpTrayIconSelector.FormatModeStatus(HpPerformanceModeStatus.CurrentBaseMode);
+            hpTrayModeStatusItem = new ToolStripMenuItem(modeStatus)
+            {
+                Enabled = false,
+                AccessibleName = modeStatus
+            };
+            contextMenuStrip.Items.Add(hpTrayModeStatusItem);
             foreach (string row in hpTrayTelemetryStatus.Rows)
             {
                 var status = new ToolStripMenuItem(row)
@@ -2062,6 +2070,13 @@ namespace GHelper
 
         private void UpdateHpTrayStatusItems()
         {
+            if (hpTrayModeStatusItem is not null)
+            {
+                string modeStatus = HpTrayIconSelector.FormatModeStatus(HpPerformanceModeStatus.CurrentBaseMode);
+                hpTrayModeStatusItem.Text = modeStatus;
+                hpTrayModeStatusItem.AccessibleName = modeStatus;
+            }
+
             IReadOnlyList<string> rows = hpTrayTelemetryStatus.Rows;
             for (int index = 0; index < Math.Min(rows.Count, hpTrayStatusItems.Count); index++)
             {
