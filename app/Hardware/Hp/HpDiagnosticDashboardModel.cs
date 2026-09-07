@@ -19,9 +19,9 @@ public sealed record HpDiagnosticDashboardSection(
 
 public sealed record HpDiagnosticUserSummaryInput
 {
-    public string? DeviceIdentity { get; init; }
+    public string? Model { get; init; }
     public string? BiosVersion { get; init; }
-    public string? TelemetryAvailability { get; init; }
+    public string? HpVictusDetection { get; init; }
     public string? CpuLoad { get; init; }
     public string? GpuTemperature { get; init; }
     public string? BatteryPower { get; init; }

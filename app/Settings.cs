@@ -37,7 +37,7 @@ namespace GHelper
         TableLayoutPanel? hpReadOnlyTelemetryDetails;
         Panel? hpReadOnlyTelemetryAdvanced;
         RButton? hpReadOnlyTelemetryAdvancedToggle;
-        HpDiagnosticDashboardSection? hpLastUserDiagnosticSummary;
+        string? hpLastUserDiagnosticSummarySignature;
         Label? hpReadOnlyTelemetrySource;
         Label? hpReadOnlyTelemetryHealth;
         Label? hpReadOnlyTelemetryWarning;
@@ -577,9 +577,9 @@ namespace GHelper
                     Environment.NewLine + gpuMode.EvidenceText + Environment.NewLine + HpPerformanceModeStatus.Blocker;
             PopulateHpUserDiagnosticSummary(new HpDiagnosticUserSummaryInput
             {
-                DeviceIdentity = FormatHpDeviceIdentity(detected, snapshot, hpCachedDiagnosticReport),
+                Model = GetSnapshotOrReportValue(snapshot?.Model, hpCachedDiagnosticReport, "Model"),
                 BiosVersion = GetSnapshotOrReportValue(snapshot?.BiosVersion, hpCachedDiagnosticReport, "BiosVersion"),
-                TelemetryAvailability = display.Availability,
+                HpVictusDetection = detected switch { true => "Detected", false => "Not supported", _ => "Unavailable" },
                 CpuLoad = display.CpuLoad,
                 GpuTemperature = display.GpuTemperature,
                 BatteryPower = display.BatteryPower,
@@ -588,26 +588,27 @@ namespace GHelper
                 FanRpm = display.FanRpm,
                 GpuModeCapability = RemoveHpStatusPrefix(gpuMode.DisplayText, "GPU Mode:"),
                 KeyboardBacklightCapability = RemoveHpStatusPrefix(keyboard.DisplayText, "Keyboard lighting:"),
-                BatteryCareCapability = display.BatteryCareStatus,
-                FanControlStatus = hpFanProofGaps?.NormalFanControlDecision ?? "NO-GO - normal fan control is unavailable."
+                BatteryCareCapability = FormatHpBatteryCareCapability(display.BatteryCareStatus),
+                FanControlStatus = "NO-GO"
             });
-        }
-
-        private static string FormatHpDeviceIdentity(
-            bool? detected, HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
-        {
-            if (detected == false) return "HP Victus not detected";
-            if (detected is null) return "Unavailable";
-
-            string model = GetSnapshotOrReportValue(snapshot?.Model, report, "Model");
-            string sku = GetSnapshotOrReportValue(snapshot?.SystemSku, report, "Sku");
-            return $"Detected - {model} | SKU {sku}";
         }
 
         private static string RemoveHpStatusPrefix(string value, string prefix) =>
             value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
                 ? value[prefix.Length..].Trim()
                 : value;
+
+        private static string FormatHpBatteryCareCapability(string value)
+        {
+            if (value.StartsWith("Enabled", StringComparison.OrdinalIgnoreCase) ||
+                value.StartsWith("Disabled", StringComparison.OrdinalIgnoreCase))
+                return "Available";
+            if (value.StartsWith("Supported", StringComparison.OrdinalIgnoreCase))
+                return "Supported, state unavailable";
+            if (value.StartsWith("Not exposed", StringComparison.OrdinalIgnoreCase))
+                return "Not supported";
+            return "Unavailable";
+        }
 
         private static byte? GetHpGpuModeSwitchRaw(
             HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
@@ -1106,17 +1107,22 @@ namespace GHelper
         {
             if (hpReadOnlyTelemetrySummary is null) return;
 
-            HpDiagnosticDashboardSection summary = HpDiagnosticDashboardFormatter.BuildUserSummary(input);
-            if (hpLastUserDiagnosticSummary?.Rows.SequenceEqual(summary.Rows) == true) return;
+            IReadOnlyList<HpDiagnosticDashboardSection> sections = HpDiagnosticDashboardFormatter.BuildUserSummary(input);
+            string signature = string.Join(Environment.NewLine,
+                sections.SelectMany(section => section.Rows).Select(row => row.Label + "=" + row.Value));
+            if (string.Equals(hpLastUserDiagnosticSummarySignature, signature, StringComparison.Ordinal)) return;
 
-            hpLastUserDiagnosticSummary = summary;
+            hpLastUserDiagnosticSummarySignature = signature;
             hpReadOnlyTelemetrySummary.SuspendLayout();
             hpReadOnlyTelemetrySummary.Controls.Clear();
             hpReadOnlyTelemetrySummary.RowStyles.Clear();
             hpReadOnlyTelemetrySummary.RowCount = 0;
-            AddHpTelemetrySection(hpReadOnlyTelemetrySummary, summary.Title);
-            foreach (HpDiagnosticDashboardRow row in summary.Rows)
-                AddHpTelemetryRow(hpReadOnlyTelemetrySummary, row);
+            foreach (HpDiagnosticDashboardSection section in sections)
+            {
+                AddHpTelemetrySection(hpReadOnlyTelemetrySummary, section.Title);
+                foreach (HpDiagnosticDashboardRow row in section.Rows)
+                    AddHpTelemetryRow(hpReadOnlyTelemetrySummary, row);
+            }
             hpReadOnlyTelemetrySummary.ResumeLayout();
         }
 

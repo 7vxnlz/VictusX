@@ -8,11 +8,11 @@ public sealed class HpDiagnosticDashboardFormatterTests
     [Fact]
     public void UserSummary_PrioritizesNormalStatusAndKeepsDeveloperEvidenceOut()
     {
-        HpDiagnosticDashboardSection summary = HpDiagnosticDashboardFormatter.BuildUserSummary(new()
+        IReadOnlyList<HpDiagnosticDashboardSection> summary = HpDiagnosticDashboardFormatter.BuildUserSummary(new()
         {
-            DeviceIdentity = "Detected - HP Victus 16-s0035nt",
+            Model = "HP Victus 16-s0035nt",
             BiosVersion = "F.31",
-            TelemetryAvailability = "Current",
+            HpVictusDetection = "Detected",
             CpuLoad = "24%",
             GpuTemperature = "52 C",
             BatteryPower = "78% | AC | Charging",
@@ -22,17 +22,19 @@ public sealed class HpDiagnosticDashboardFormatterTests
             GpuModeCapability = "Supported, state unavailable",
             KeyboardBacklightCapability = "Supported, state unavailable",
             BatteryCareCapability = "Unavailable",
-            FanControlStatus = "NO-GO - normal fan control is unavailable."
+            FanControlStatus = "NO-GO"
         });
 
-        Assert.Equal("User-facing summary", summary.Title);
-        Assert.Contains(summary.Rows, row => row.Label == "CPU load" && row.Value == "24%" && row.Status == HpDiagnosticDashboardStatus.Ready);
-        Assert.Contains(summary.Rows, row => row.Label == "Refresh rate" && row.Value == "144Hz" && row.Status == HpDiagnosticDashboardStatus.Ready);
-        Assert.Contains(summary.Rows, row => row.Label == "CPU temperature" && row.Value == "Unavailable" && row.Status == HpDiagnosticDashboardStatus.Normal);
-        Assert.Contains(summary.Rows, row => row.Label == "Fan RPM" && row.Value == "Unavailable" && row.Status == HpDiagnosticDashboardStatus.Normal);
-        Assert.Contains(summary.Rows, row => row.Label == "Fan control" && row.Status == HpDiagnosticDashboardStatus.Blocked);
-        Assert.DoesNotContain(summary.Rows, row => row.Label.Contains("Payload", StringComparison.OrdinalIgnoreCase));
-        Assert.DoesNotContain(summary.Rows, row => row.Label.Contains("DeviceValidatedInputLength", StringComparison.Ordinal));
+        Assert.Equal(["Device", "Live status", "Capabilities"], summary.Select(section => section.Title));
+        HpDiagnosticDashboardSection live = Assert.Single(summary, section => section.Title == "Live status");
+        HpDiagnosticDashboardSection capabilities = Assert.Single(summary, section => section.Title == "Capabilities");
+        Assert.Contains(live.Rows, row => row.Label == "CPU Load" && row.Value == "24%" && row.Status == HpDiagnosticDashboardStatus.Ready);
+        Assert.Contains(live.Rows, row => row.Label == "Refresh Rate" && row.Value == "144Hz" && row.Status == HpDiagnosticDashboardStatus.Ready);
+        Assert.Contains(live.Rows, row => row.Label == "CPU Temp" && row.Value == "Unavailable" && row.Status == HpDiagnosticDashboardStatus.Normal);
+        Assert.Contains(live.Rows, row => row.Label == "Fan RPM" && row.Value == "Unavailable" && row.Status == HpDiagnosticDashboardStatus.Normal);
+        Assert.Contains(capabilities.Rows, row => row.Label == "Fan Control" && row.Value == "NO-GO" && row.Status == HpDiagnosticDashboardStatus.Blocked);
+        Assert.DoesNotContain(summary.SelectMany(section => section.Rows), row => row.Label.Contains("Payload", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(summary.SelectMany(section => section.Rows), row => row.Label.Contains("DeviceValidatedInputLength", StringComparison.Ordinal));
     }
 
     [Fact]

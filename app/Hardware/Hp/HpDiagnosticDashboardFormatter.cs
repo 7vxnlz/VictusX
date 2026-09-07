@@ -175,24 +175,33 @@ public static class HpDiagnosticDashboardFormatter
         ];
     }
 
-    public static HpDiagnosticDashboardSection BuildUserSummary(HpDiagnosticUserSummaryInput input)
+    public static IReadOnlyList<HpDiagnosticDashboardSection> BuildUserSummary(HpDiagnosticUserSummaryInput input)
     {
-        return new("User-facing summary",
+        return
         [
-            UserRow("Device identity", input.DeviceIdentity),
-            UserRow("BIOS", input.BiosVersion),
-            UserRow("Telemetry", input.TelemetryAvailability),
-            UserRow("CPU load", input.CpuLoad),
-            UserRow("GPU temperature", input.GpuTemperature),
-            UserRow("Battery / AC", input.BatteryPower),
-            UserRow("Refresh rate", input.RefreshRate),
-            UserRow("CPU temperature", input.CpuTemperature),
-            UserRow("Fan RPM", input.FanRpm),
-            UserRow("GPU mode", input.GpuModeCapability),
-            UserRow("Keyboard lighting", input.KeyboardBacklightCapability),
-            UserRow("Battery care", input.BatteryCareCapability),
-            UserRow("Fan control", input.FanControlStatus, blocked: true)
-        ]);
+            new("Device",
+            [
+                UserRow("Model", input.Model),
+                UserRow("BIOS", input.BiosVersion),
+                UserRow("HP/Victus detection", input.HpVictusDetection)
+            ]),
+            new("Live status",
+            [
+                UserRow("CPU Load", input.CpuLoad),
+                UserRow("GPU Temp", input.GpuTemperature),
+                UserRow("Battery / AC", input.BatteryPower),
+                UserRow("Refresh Rate", input.RefreshRate),
+                UserRow("CPU Temp", input.CpuTemperature),
+                UserRow("Fan RPM", input.FanRpm)
+            ]),
+            new("Capabilities",
+            [
+                UserRow("GPU Mode", input.GpuModeCapability),
+                UserRow("Keyboard Lighting", input.KeyboardBacklightCapability),
+                UserRow("Battery Care", input.BatteryCareCapability),
+                UserRow("Fan Control", input.FanControlStatus, blocked: true)
+            ])
+        ];
     }
 
     public static string BuildSummary(HpDiagnosticDashboardInput input)
