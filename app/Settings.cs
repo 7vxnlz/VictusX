@@ -553,6 +553,8 @@ namespace GHelper
                 GetSnapshotOrReportValue(snapshot?.Model, hpCachedDiagnosticReport, "Model"),
                 GetSnapshotOrReportValue(snapshot?.SystemSku, hpCachedDiagnosticReport, "Sku"),
                 GetHpGpuModeSwitchRaw(snapshot, hpCachedDiagnosticReport));
+            byte? fanCount = GetHpFanCount(snapshot, hpCachedDiagnosticReport);
+            byte? thermalPolicyVersion = GetHpThermalPolicyVersion(snapshot, hpCachedDiagnosticReport);
             HpReadOnlyTelemetryDisplay display = HpReadOnlyTelemetryFormatter.Format(
                 hpLiveTelemetry, DateTimeOffset.UtcNow, detected, cachedIdentity);
             hpTrayTelemetryStatus = display.TrayStatus;
@@ -584,15 +586,18 @@ namespace GHelper
             PopulateHpUserDiagnosticSummary(new HpDiagnosticUserSummaryInput
             {
                 Model = GetSnapshotOrReportValue(snapshot?.Model, hpCachedDiagnosticReport, "Model"),
+                Sku = GetSnapshotOrReportValue(snapshot?.SystemSku, hpCachedDiagnosticReport, "Sku"),
                 BiosVersion = GetSnapshotOrReportValue(snapshot?.BiosVersion, hpCachedDiagnosticReport, "BiosVersion"),
                 HpVictusDetection = detected switch { true => "Detected", false => "Not supported", _ => "Unavailable" },
+                FanCount = HpReadOnlyTelemetryFormatter.FormatFanCount(fanCount),
+                ThermalPolicy = HpReadOnlyTelemetryFormatter.FormatThermalPolicy(thermalPolicyVersion),
                 CpuLoad = display.CpuLoad,
                 GpuTemperature = display.GpuTemperature,
                 BatteryPower = display.BatteryPower,
                 RefreshRate = display.RefreshRate,
                 CpuTemperature = display.CpuTemperature,
                 FanRpm = display.FanRpm,
-                GpuModeCapability = gpuMode.CapabilityText,
+                GpuSwitchingCapability = gpuMode.SwitchingCapabilityText,
                 KeyboardBacklightCapability = keyboard.CapabilityText,
                 BatteryCareCapability = display.BatteryCareCapability,
                 FanControlStatus = "NO-GO"
@@ -607,7 +612,29 @@ namespace GHelper
 
             return report?.GetBool("SystemDesignDataDecodeSucceeded") == true &&
                 byte.TryParse(report.GetValue("SystemDesignDataDecoded.GpuModeSwitchRaw"), out byte raw)
-                    ? raw : null;
+                     ? raw : null;
+        }
+
+        private static byte? GetHpFanCount(
+            HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
+        {
+            if (snapshot?.FanGetCountInvocationSucceeded == true && snapshot.FanGetCountDecodeSucceeded)
+                return snapshot.FanGetCountDecoded?.FanCount;
+
+            return report?.GetBool("FanGetCountDecodeSucceeded") == true &&
+                byte.TryParse(report.GetValue("FanGetCountDecoded.FanCount"), out byte count)
+                    ? count : null;
+        }
+
+        private static byte? GetHpThermalPolicyVersion(
+            HpVictusCapabilitySnapshot? snapshot, HpDiagnosticReportLoadResult? report)
+        {
+            if (snapshot?.SystemDesignDataInvocationSucceeded == true && snapshot.SystemDesignDataDecodeSucceeded)
+                return snapshot.SystemDesignDataDecoded?.ThermalPolicyVersion;
+
+            return report?.GetBool("SystemDesignDataDecodeSucceeded") == true &&
+                byte.TryParse(report.GetValue("SystemDesignDataDecoded.ThermalPolicyVersion"), out byte version)
+                    ? version : null;
         }
 
         private static int? ReadHpDisplayRefreshRate()
@@ -1151,6 +1178,7 @@ namespace GHelper
                 HpqBIntMReadiness = GetSnapshotOrReportAvailability(snapshot?.HpqBIntMAvailability, report, "HpqBIntMAvailability"),
                 HpqBDataInReadiness = GetSnapshotOrReportAvailability(snapshot?.HpqBDataInAvailability, report, "HpqBDataInAvailability"),
                 SystemDesignDataDecodeStatus = FormatDecodedStatus(snapshot?.SystemDesignDataInvocationSucceeded == true && snapshot.SystemDesignDataDecodeSucceeded, report, "SystemDesignDataDecodeSucceeded"),
+                ThermalPolicyVersion = GetHpThermalPolicyVersion(snapshot, report)?.ToString(),
                 SoftwareFanControlSupport = FormatDeclaredSupport(snapshot, report),
                 FanCount = GetSnapshotOrDecodedReportValue(snapshot?.FanGetCountInvocationSucceeded == true && snapshot.FanGetCountDecodeSucceeded, snapshot?.FanGetCountDecoded?.FanCount, report, "FanGetCountDecodeSucceeded", "FanGetCountDecoded.FanCount"),
                 MaxFanState = FormatMaxFanState(snapshot, report),

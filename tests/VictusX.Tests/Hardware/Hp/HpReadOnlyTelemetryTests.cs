@@ -156,6 +156,29 @@ public sealed class HpReadOnlyTelemetryTests
     }
 
     [Theory]
+    [InlineData(null, "Unavailable")]
+    [InlineData(0, "Unavailable")]
+    [InlineData(1, "1 fan")]
+    [InlineData(2, "2 fans")]
+    [InlineData(3, "Unavailable")]
+    [InlineData(9, "Unavailable")]
+    public void ProvenFanCount_FormatsConcisely(int? count, string expected)
+    {
+        Assert.Equal(expected, HpReadOnlyTelemetryFormatter.FormatFanCount(count is null ? null : (byte)count.Value));
+    }
+
+    [Theory]
+    [InlineData(null, "Unavailable")]
+    [InlineData(0, "Unavailable")]
+    [InlineData(1, "V1")]
+    [InlineData(9, "Unavailable")]
+    [InlineData(10, "Unavailable")]
+    public void ProvenThermalPolicy_FormatsConcisely(int? version, string expected)
+    {
+        Assert.Equal(expected, HpReadOnlyTelemetryFormatter.FormatThermalPolicy(version is null ? null : (byte)version.Value));
+    }
+
+    [Theory]
     [InlineData(60, "Screen: 60Hz")]
     [InlineData(144, "Screen: 144Hz")]
     [InlineData(null, "Screen: Unavailable")]

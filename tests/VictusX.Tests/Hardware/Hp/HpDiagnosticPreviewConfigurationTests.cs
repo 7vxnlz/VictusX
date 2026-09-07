@@ -456,6 +456,11 @@ public sealed class HpDiagnosticPreviewConfigurationTests
         string settings = ReadRepositoryFile("app", "Settings.cs");
 
         Assert.Contains("SystemDesignDataDecoded.GpuModeSwitchRaw", settings, StringComparison.Ordinal);
+        Assert.Contains("SystemDesignDataDecoded.ThermalPolicyVersion", settings, StringComparison.Ordinal);
+        Assert.Contains("FanGetCountDecoded.FanCount", settings, StringComparison.Ordinal);
+        Assert.Contains("GpuSwitchingCapability = gpuMode.SwitchingCapabilityText", settings, StringComparison.Ordinal);
+        Assert.Contains("FanCount = HpReadOnlyTelemetryFormatter.FormatFanCount(fanCount)", settings, StringComparison.Ordinal);
+        Assert.Contains("ThermalPolicy = HpReadOnlyTelemetryFormatter.FormatThermalPolicy(thermalPolicyVersion)", settings, StringComparison.Ordinal);
         Assert.Contains("labelGPU.Text = $\"GPU Mode: {gpuMode.CapabilityText}\";", settings, StringComparison.Ordinal);
         Assert.Contains("panelGPU,", settings, StringComparison.Ordinal);
         Assert.DoesNotContain("labelGPU.Enabled = true", settings, StringComparison.Ordinal);

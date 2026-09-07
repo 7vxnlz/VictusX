@@ -20,15 +20,18 @@ public sealed record HpDiagnosticDashboardSection(
 public sealed record HpDiagnosticUserSummaryInput
 {
     public string? Model { get; init; }
+    public string? Sku { get; init; }
     public string? BiosVersion { get; init; }
     public string? HpVictusDetection { get; init; }
+    public string? FanCount { get; init; }
+    public string? ThermalPolicy { get; init; }
     public string? CpuLoad { get; init; }
     public string? GpuTemperature { get; init; }
     public string? BatteryPower { get; init; }
     public string? RefreshRate { get; init; }
     public string? CpuTemperature { get; init; }
     public string? FanRpm { get; init; }
-    public string? GpuModeCapability { get; init; }
+    public string? GpuSwitchingCapability { get; init; }
     public string? KeyboardBacklightCapability { get; init; }
     public string? BatteryCareCapability { get; init; }
     public string? FanControlStatus { get; init; }
@@ -57,6 +60,7 @@ public sealed record HpDiagnosticDashboardInput
     public string? HpqBIntMReadiness { get; init; }
     public string? HpqBDataInReadiness { get; init; }
     public string? SystemDesignDataDecodeStatus { get; init; }
+    public string? ThermalPolicyVersion { get; init; }
     public string? SoftwareFanControlSupport { get; init; }
     public string? FanCount { get; init; }
     public string? MaxFanState { get; init; }

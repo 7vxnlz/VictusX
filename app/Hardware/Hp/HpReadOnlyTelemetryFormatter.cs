@@ -113,4 +113,13 @@ internal static class HpReadOnlyTelemetryFormatter
         { Availability: HpBatteryCareAvailability.NotExposed } => "Not supported",
         _ => "Unavailable"
     };
+
+    internal static string FormatFanCount(byte? fanCount) => fanCount switch
+    {
+        1 => "1 fan",
+        2 => "2 fans",
+        _ => "Unavailable"
+    };
+
+    internal static string FormatThermalPolicy(byte? version) => version == 1 ? "V1" : "Unavailable";
 }

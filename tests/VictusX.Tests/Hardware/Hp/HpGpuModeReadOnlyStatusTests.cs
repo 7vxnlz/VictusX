@@ -16,6 +16,7 @@ public sealed class HpGpuModeReadOnlyStatusTests
         Assert.Equal((byte)6, status.CapabilityRaw);
         Assert.True(status.ModeChangeRequiresReboot);
         Assert.Equal("Supported, state unavailable", status.CapabilityText);
+        Assert.Equal("Supported", status.SwitchingCapabilityText);
         Assert.Equal("GPU Mode: Supported, state unavailable", status.DisplayText);
     }
 
@@ -27,6 +28,7 @@ public sealed class HpGpuModeReadOnlyStatusTests
 
         Assert.Equal(HpGpuModeAvailability.NotSupported, status.Availability);
         Assert.Equal("Not supported", status.CapabilityText);
+        Assert.Equal("Not supported", status.SwitchingCapabilityText);
         Assert.Equal("GPU Mode: Not supported", status.DisplayText);
         Assert.Null(status.CurrentMode);
     }
@@ -44,6 +46,8 @@ public sealed class HpGpuModeReadOnlyStatusTests
 
         Assert.Equal(expected, status.DisplayText);
         Assert.Equal(expected.Replace("GPU Mode: ", ""), status.CapabilityText);
+        Assert.Equal(status.Availability == HpGpuModeAvailability.NotSupported ? "Not supported" : "Unavailable",
+            status.SwitchingCapabilityText);
         Assert.Null(status.CurrentMode);
     }
 

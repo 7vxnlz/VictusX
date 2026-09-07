@@ -78,6 +78,7 @@ public static class HpDiagnosticDashboardFormatter
             new("Read-only telemetry",
             [
                 Row("SystemDesignData decoded", input.SystemDesignDataDecodeStatus),
+                Row("Thermal policy version", input.ThermalPolicyVersion),
                 Row("Software fan control declared by firmware", input.SoftwareFanControlSupport)
             ]),
             new("Fan read-only status",
@@ -182,8 +183,11 @@ public static class HpDiagnosticDashboardFormatter
             new("Device",
             [
                 UserRow("Model", input.Model),
+                UserRow("SKU", input.Sku),
                 UserRow("BIOS", input.BiosVersion),
-                UserRow("HP/Victus detection", input.HpVictusDetection)
+                UserRow("HP/Victus detection", input.HpVictusDetection),
+                UserRow("Fan count", input.FanCount),
+                UserRow("Thermal policy", input.ThermalPolicy)
             ]),
             new("Live status",
             [
@@ -196,7 +200,7 @@ public static class HpDiagnosticDashboardFormatter
             ]),
             new("Capabilities",
             [
-                UserRow("GPU Mode", input.GpuModeCapability),
+                UserRow("GPU Switching", input.GpuSwitchingCapability),
                 UserRow("Keyboard Lighting", input.KeyboardBacklightCapability),
                 UserRow("Battery Care", input.BatteryCareCapability),
                 UserRow("Fan Control", input.FanControlStatus, blocked: true)
